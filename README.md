@@ -61,6 +61,13 @@ Example Reviews:
 
 Want to collaborate? What do you expect out of Python packages? Let me know in the comments. I envision this being sort of modular so people can contribute their own checks.
 
+Desired interface:
+
+Run on the command line with:
+
+```shell
+$ autoreview https://github.com/rs-costa/sbml2hyb
+```
 
 ## 🚀 Installation
 

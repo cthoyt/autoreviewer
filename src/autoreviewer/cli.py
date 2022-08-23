@@ -14,8 +14,11 @@ later, but that will cause problems--the code will get executed twice:
 """
 
 import logging
+from pathlib import Path
 
 import click
+
+from autoreviewer import review
 
 __all__ = [
     "main",
@@ -24,10 +27,14 @@ __all__ = [
 logger = logging.getLogger(__name__)
 
 
-@click.group()
-@click.version_option()
-def main():
+@click.command()
+@click.argument("url")
+@click.option("--path")
+def main(url: str, path):
     """CLI for autoreviewer."""
+    owner, repo, *_ = url.removeprefix("https://github.com/").split("/")
+    results = review(owner, repo)
+    results.write(path or Path.cwd())
 
 
 if __name__ == "__main__":
