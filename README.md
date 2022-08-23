@@ -14,6 +14,8 @@ Goals:
    - Uses conda for installation
    - Code does not have consistent style (i.e., there's no configuration for `black`)
    - `pyroma` doesn't pass 10/10
+   - missing `LICENSE` file
+   - missing `CITATION.cff` file
 2. Automate sending issues to the repository instructing how to do these things
 
 
