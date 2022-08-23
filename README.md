@@ -13,6 +13,7 @@ Goals:
    - No reproducible installation instructions (i.e., does the README contain `pip`)
    - Uses conda for installation
    - Code does not have consistent style (i.e., there's no configuration for `black`)
+   - `pyroma` doesn't pass 10/10
 2. Automate sending issues to the repository instructing how to do these things
 
 
