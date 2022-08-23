@@ -17,7 +17,8 @@ Goals:
    - missing `LICENSE` file
    - missing `CITATION.cff` file
 2. Automate sending issues to the repository instructing how to do these things
-
+   - Use deterministic titles for all issues to avoid duplicates / make idempotent
+   - Create and edit "epic" issue that links others
 
 Example Reviews:
 
