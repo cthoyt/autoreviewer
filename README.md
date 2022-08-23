@@ -25,3 +25,5 @@ Example Reviews:
 - https://github.com/fanavarro/lexical-analysis-obo-foundry/issues/4
 - https://github.com/krishnanlab/PecanPy/issues/12
 - https://github.com/huihui1126/drugSim-pathway/issues/14
+
+Want to collaborate? What do you expect out of Python packages? Let me know in the comments. I envision this being sort of modular so people can contribute their own checks.
