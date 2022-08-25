@@ -1,22 +1,22 @@
 """A script for downloading and analyzing articles from the Journal of Cheminformatics."""
 
 import urllib.error
+from functools import partial
 from operator import itemgetter
 from textwrap import shorten
 from typing import Iterable
 
 import click
-import ebooklib
-import pystow
-from functools import partial
-import requests
 import dateutil.parser
+import ebooklib
+import pandas as pd
+import pystow
+import requests
 from bs4 import BeautifulSoup
 from ebooklib import epub
 from tabulate import tabulate
 from tqdm import tqdm
 from tqdm.contrib.concurrent import process_map
-import pandas as pd
 
 URL = "https://jcheminf.biomedcentral.com/track/epub/10.1186"
 MODULE = pystow.module("jcheminf")
@@ -26,20 +26,18 @@ PREFIX = "https://doi.org/10.1186/"
 WIKIDATA_ENDPOINT = "https://query.wikidata.org/bigdata/namespace/wdq/sparql"
 
 
-def get_dois_wikidata(force: bool = False) -> list[str]:
+def get_dois_wikidata(force: bool = False) -> set[str]:
     path = MODULE.join(name="wikidata_dois.txt")
     if path.is_file() and not force:
-        return list(path.read_text().splitlines())
+        return {line.strip() for line in path.read_text().splitlines()}
     sparql = "SELECT ?doi WHERE { wd:Q6294930 ^wdt:P1433 / wdt:P356 ?doi . }"
     response = requests.get(WIKIDATA_ENDPOINT, params={"query": sparql, "format": "json"})
     res_json = response.json()
-    dois = sorted(
-        {
-            record["doi"]["value"].removeprefix("10.1186/")
-            for record in res_json["results"]["bindings"]
-        }
-    )
-    path.write_text("\n".join(dois))
+    dois = {
+        record["doi"]["value"].removeprefix("10.1186/").strip()
+        for record in res_json["results"]["bindings"]
+    }
+    path.write_text("\n".join(sorted(dois)))
     return dois
 
 
@@ -48,10 +46,10 @@ def get_dois_egon(
     repo: str = "jcheminform-kb",
     branch: str = "main",
     force: bool = False,
-) -> list[str]:
+) -> set[str]:
     path = MODULE.join(name="egon_dois.txt")
     if path.is_file() and not force:
-        return list(path.read_text().splitlines())
+        return {line.strip() for line in path.read_text().splitlines()}
 
     response = requests.get(
         f"https://api.github.com/repos/{user}/{repo}/git/trees/{branch}?recursive=1"
@@ -71,10 +69,9 @@ def get_dois_egon(
         )
         for entity in graph.subjects():
             if entity.startswith(PREFIX):
-                dois.add(entity.removeprefix(PREFIX))
+                dois.add(entity.removeprefix(PREFIX).strip())
 
-    dois = sorted(dois)
-    path.write_text("\n".join(dois))
+    path.write_text("\n".join(sorted(dois)))
     return dois
 
 
@@ -97,7 +94,7 @@ def get_title(book: epub.EpubBook) -> str:
 def get_date(book: epub.EpubBook) -> str:
     """Get the title of the article."""
     for element in find_class(book, "HistoryDate"):
-        return dateutil.parser.parse(element.text).strftime("%Y-%m-%d")
+        return dateutil.parser.parse(remove_non_ascii(element.text)).strftime("%Y-%m-%d")
     return ""
 
 
@@ -161,22 +158,31 @@ def _process(doi: str):
     try:
         book = get_jcheminf_epub(doi)
     except (epub.EpubException, urllib.error.HTTPError):
-        return doi, None, None, None
+        return doi, "", None, None
     else:
         github = ", ".join(sorted({x for x in get_github(book) if x}))
-        return doi, get_date(book), shorten(get_title(book), 80), github
+        return doi, get_date(book), get_title(book), github
 
 
 def _main():
+    dois = sorted(get_dois_egon() | get_dois_wikidata())
+
     _map = partial(process_map, chunksize=100, desc="processing ePubs", unit="article")
     # _map = map
-    rv = _map(_process, get_dois_wikidata())
+
+    rv = _map(_process, dois)
     rv = sorted(rv, key=itemgetter(1), reverse=True)  # sort by date
 
     output_path = MODULE.join(name="results.tsv")
     columns = ["doi", "date", "title", "github"]
     pd.DataFrame(rv, columns=columns).to_csv(output_path, sep="\t", index=False)
-    print(tabulate([row for row in rv if row[3]], headers=columns, tablefmt="github"))
+    print(
+        tabulate(
+            [(doi, date, shorten(title, 80), github) for doi, date, title, github in rv if github],
+            headers=columns,
+            tablefmt="github",
+        )
+    )
 
     length = len(rv)
     has_epub = sum(bool(row[1]) for row in rv)
