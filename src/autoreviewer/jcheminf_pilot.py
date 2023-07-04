@@ -1,35 +1,34 @@
 """A script for downloading and analyzing articles from the Journal of Cheminformatics."""
-
+import datetime
 import hashlib
 import json
 import urllib.error
 from operator import itemgetter
 from textwrap import shorten
-from typing import Iterable, Optional
+from typing import Iterable
 
 import click
 import dateutil.parser
 import ebooklib
 import pandas as pd
-import pystow
 import requests
 from bs4 import BeautifulSoup
 from ebooklib import epub
-from ratelimit import rate_limited
 from tabulate import tabulate
-from tqdm import tqdm
+from tqdm.auto import tqdm, trange
 from tqdm.contrib.concurrent import process_map
 
-URL = "https://jcheminf.biomedcentral.com/track/epub/10.1186"
-MODULE = pystow.module("jcheminf")
-PREFIX = "https://doi.org/10.1186/"
+from autoreviewer.utils import (
+    MODULE,
+    WIKIDATA_ENDPOINT,
+    get_jcheminf_repositories_dict,
+    github_api,
+    strip,
+)
 
-#: Wikidata SPARQL endpoint. See https://www.wikidata.org/wiki/Wikidata:SPARQL_query_service#Interfacing
-WIKIDATA_ENDPOINT = "https://query.wikidata.org/bigdata/namespace/wdq/sparql"
-
-# Load the GitHub access token via PyStow. We'll
-# need it so we don't hit the rate limit
-TOKEN = pystow.get_config("github", "token", raise_on_missing=True)
+#: Add the DOI at the end of this URL to get an ePub file
+EPUB_BASE_URL = "https://jcheminf.biomedcentral.com/track/epub/10.1186"
+JCHEMINF_DOI_PREFIX = "https://doi.org/10.1186/"
 
 
 def get_dois_wikidata(force: bool = True) -> set[str]:
@@ -55,7 +54,7 @@ def get_dois_egon(
 ) -> set[str]:
     path = MODULE.join(name="egon_dois.txt")
     if path.is_file() and not force:
-        return {line.strip() for line in path.read_text().splitlines()}
+        return set(path.read_text().splitlines())
 
     response = requests.get(
         f"https://api.github.com/repos/{user}/{repo}/git/trees/{branch}?recursive=1"
@@ -74,17 +73,18 @@ def get_dois_egon(
             parse_kwargs={"format": "turtle"},
         )
         for entity in graph.subjects():
-            if entity.startswith(PREFIX):
-                dois.add(remove_non_ascii(entity).removeprefix(PREFIX).strip())
+            if entity.startswith(JCHEMINF_DOI_PREFIX):
+                dois.add(remove_non_ascii(entity).removeprefix(JCHEMINF_DOI_PREFIX).strip())
 
     path.write_text("\n".join(sorted(dois)))
     return dois
 
 
 def get_jcheminf_epub(doi: str) -> epub.EpubBook:
-    """Get an ePub object from Journal of Cheminformatics"""
-    path = MODULE.ensure("epubs", url=f"{URL}/{doi}", name=f"{doi}.epub")
-    return epub.read_epub(path)
+    """Get an ePub object from Journal of Cheminformatics."""
+    doi = doi.removeprefix("10.1186/")
+    path = MODULE.ensure("epubs", url=f"{EPUB_BASE_URL}/{doi}", name=f"{doi}.epub")
+    return epub.read_epub(path, options=dict(ignore_ncx=True))
 
 
 def get_title(book: epub.EpubBook) -> str:
@@ -97,14 +97,30 @@ def get_title(book: epub.EpubBook) -> str:
     raise ValueError
 
 
-def get_date(book: epub.EpubBook) -> str:
+def _get_date(book: epub.EpubBook) -> datetime.date | None:
     """Get the title of the article."""
     for element in find_class(book, "HistoryDate"):
-        return dateutil.parser.parse(remove_non_ascii(element.text)).strftime("%Y-%m-%d")
+        return dateutil.parser.parse(remove_non_ascii(element.text))
+    return None
+
+
+def get_date(book: epub.EpubBook) -> str:
+    """Get the date of the article in YYYY-MM-DD."""
+    d = _get_date(book)
+    if d:
+        return d.strftime("%Y-%m-%d")
     return ""
 
 
-def find_class(book: epub.EpubBook, name):
+def get_year(book: epub.EpubBook) -> str:
+    """Get the year of the article."""
+    d = _get_date(book)
+    if d:
+        return d.strftime("%Y")
+    return ""
+
+
+def find_class(book: epub.EpubBook, name: str):
     """Get the title of the article."""
     for item in book.get_items_of_type(ebooklib.ITEM_DOCUMENT):
         soup = BeautifulSoup(item.get_body_content(), "html.parser")
@@ -116,7 +132,6 @@ def get_github(book: epub.EpubBook) -> Iterable[str]:
     """Iterate over the GitHub references in the "Availability of data and materials" section."""
     for item in book.get_items_of_type(ebooklib.ITEM_DOCUMENT):
         soup = BeautifulSoup(item.get_body_content(), "html.parser")
-
         data_availability = soup.find(**{"class": "DataAvailability"})
         if not data_availability:
             continue
@@ -143,7 +158,7 @@ def get_github(book: epub.EpubBook) -> Iterable[str]:
         if not count:
             tqdm.write(
                 click.style(f"No GitHub found for ", fg="yellow")
-                + click.style(get_title(book), fg="yellow", bold=True, italic=True)
+                + click.style(f"{get_title(book)} ({get_year(book)})", fg="yellow", bold=True)
                 + "\n"
                 + text_cleaned.replace("\n", " ").replace("  ", " ")
                 + "\n"
@@ -152,12 +167,6 @@ def get_github(book: epub.EpubBook) -> Iterable[str]:
 
 def remove_non_ascii(string: str) -> str:
     return string.encode("ascii", errors="ignore").decode()
-
-
-def strip(s: str) -> str:
-    for t in ".,\\/()[]{}_":
-        s = s.strip(t)
-    return s
 
 
 def _process(doi: str):
@@ -170,32 +179,45 @@ def _process(doi: str):
         return doi, get_date(book), get_title(book), repos[0] if repos else None
 
 
-@rate_limited(calls=5_000, period=60 * 60)
-def github_api(url: str, accept: Optional[str] = None, params: Optional[dict[str, any]] = None):
-    headers = {
-        "Authorization": f"token {TOKEN}",
-    }
-    if accept:
-        headers["Accept"] = accept
-    return requests.get(url, headers=headers, params=params).json()
+def scrape_articles(top: int = 27) -> set[str]:
+    url = "https://jcheminf.biomedcentral.com/articles?searchType=journalSearch&sort=PubDate&page="
+    dois: set[str] = set()
+    for i in trange(1, top + 1, unit="page", desc="Scraping JChemInf site"):
+        res = requests.get(url + str(i))
+        soup = BeautifulSoup(res.text, "html.parser")
+        for element in soup.find_all(**{"class": "c-listing__item"}):
+            a = element.find(**{"data-test": "title-link"})
+            if a is None:
+                continue
+            title = a.get_text()
+
+            article_type = element.find(**{"data-test": "result-list"})
+            if article_type.get_text() == "Editorial":
+                tqdm.write(f"Skipping editorial: {title}")
+                continue
+
+            doi = a.attrs["href"].removeprefix("/articles/")
+            dois.add(doi)
+    return dois
 
 
 def _main():
     output_path = MODULE.join(name="results.tsv")
-    if output_path.is_file():
+    if output_path.is_file() and False:
         df = pd.read_csv(output_path, sep="\t")
     else:
-        dois = sorted(get_dois_egon().union(get_dois_wikidata()))
-        rv = process_map(_process, dois, desc="processing ePubs", unit="article")
+        dois = scrape_articles()
+        rv = process_map(_process, dois, desc="processing ePubs", unit="article", chunksize=20)
         rv = sorted(set(rv), key=itemgetter(1), reverse=True)  # sort by date
 
         columns = ["doi", "date", "title", "github"]
         df = pd.DataFrame(rv, columns=columns).drop_duplicates()
+        click.echo(f"Writing to {output_path}")
         df.to_csv(output_path, sep="\t", index=False)
         print(
             tabulate(
                 [
-                    (doi, date, shorten(title, 80), github)
+                    (doi.removeprefix("10.1186/"), date, shorten(title, 60), shorten(github, 60))
                     for doi, date, title, github in rv
                     if github
                 ],
@@ -207,34 +229,43 @@ def _main():
         has_epub = sum(bool(row[1]) for row in rv)
         has_github = sum(bool(row[3]) for row in rv)
         print(
-            f"Retrieved ePubs for {has_epub}/{length} ({has_epub / length:.2%}) "
-            f"and GitHub repos for {has_github}/{length} ({has_github / length:.2%})"
+            f"Retrieved ePubs for {has_epub:,}/{length:,} ({has_epub / length:.1%}) "
+            f"and GitHub repos for {has_github:,}/{length:,} ({has_github / length:.1%})"
         )
 
     enriched_path = MODULE.join(name="results_enriched.tsv")
 
     df = df[df["github"].notna()]
     repo_index = {}
-    new_rows = {}
-    for repo in tqdm(df["github"].unique(), desc="Getting repository metadata", unit="repo"):
+    queue = []
+    for repo in tqdm(df["github"].unique(), desc="Loading cached", unit="repo"):
         if "." in repo:
             repo = repo.split(".")[0]
         md5 = hashlib.md5()
         md5.update(repo.encode("utf-8"))
         path = MODULE.join("github-info", name=f"{md5.hexdigest()[:8]}.json")
         if path.is_file():
-            info = repo_index[repo] = json.loads(path.read_text())
+            data = json.loads(path.read_text())
+            if data is not None:
+                repo_index[repo] = data
         else:
-            res = github_api(f"https://api.github.com/repos/{repo}")
-            if res.get("message") == "Not Found":
-                info = repo_index[repo] = None
-            else:
-                info = repo_index[repo] = res
-            path.write_text(json.dumps(repo_index[repo], indent=2))
+            queue.append((path, repo))
 
+    for path, repo in tqdm(queue, desc="Get repo metadata"):
+        res = github_api(f"https://api.github.com/repos/{repo}")
+        if res.status_code != 200:
+            tqdm.write(f"Bad status for {repo}: {res.text}")
+            continue
+        res_json = res.json()
+        if res_json.get("message") == "Not Found":
+            continue
+        repo_index[repo] = res_json
+        path.write_text(json.dumps(res_json, indent=2))
+
+    new_rows = {}
+    for repo, info in tqdm(repo_index.items(), desc="Process repo metadata"):
         if info is None:
             continue
-
         try:
             is_fork = info["fork"]
         except KeyError:
@@ -249,7 +280,7 @@ def _main():
         base_url = f"https://raw.githubusercontent.com/{repo}/main"
         has_setup_config = any(
             requests.get(f"{base_url}/{n}").status_code == 200
-            for n in ["setup.cfg", "setup.py", "pyproject.toml"]
+            for n in tqdm(["setup.cfg", "setup.py", "pyproject.toml"], desc="Checking setup metadata", leave=False)
         )
 
         readme_url = f"{base_url}/README.md"
