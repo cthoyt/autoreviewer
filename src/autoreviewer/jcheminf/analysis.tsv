@@ -1,0 +1,185 @@
+doi	date	title	github	is_fork	has_issues	language	license	has_readme	is_packaged
+10.1186/s13321-023-00706-y	2023-02-09	Interpreting vibrational circular dichroism spectra: the Caifactor for absolute configuration with confidence	jonathan-goodman/cai-factor	False	True	Python	MIT	False	False
+10.1186/s13321-023-00731-x	2023-02-07	TB-IECS: an accurate machine learning-based scoring function for virtual screening	schrojunzhang/tb-iec-score	True	False	Python		True	False
+10.1186/s13321-023-00723-x	2023-02-05	Merging bioactivity predictions from cell morphology and chemical fingerprint models using similarity to training data	srijitseal/merging_bioactivity_predictions_cellpainting_chemical_structure_similarity	False	True	Jupyter Notebook		True	False
+10.1186/s13321-023-00727-7	2023-01-31	RetroRanker: leveraging reaction changes to improve retrosynthesis prediction through re-ranking	catalystforyou/retroranker	False	True	Python		False	False
+10.1186/s13321-023-00708-w	2023-01-26	Exploring QSAR models for activity-cliff prediction	markusferdinanddablander/qsar-activity-cliff-experiments	False	True	Jupyter Notebook	MIT	True	False
+10.1186/s13321-023-00725-9	2023-01-16	Improving the quality of chemical language model outcomes with atom-in-SMILES tokenization	snu-lcbc/atom-in-smiles	False	True	Jupyter Notebook	Other	True	True
+10.1186/s13321-023-00726-8	2023-01-12	Tora3D: an autoregressive torsion angle prediction model for molecular 3D conformation generation	zimeizhng/tora3d	False	True	Python		False	False
+10.1186/s13321-023-00715-x	2023-01-03	MetaRF: attention-based random forest for reaction yield prediction with a few trails	nikki0526/metarf	False	True	Jupyter Notebook		True	False
+10.1186/s13321-023-00721-z	2022-12-26	DeepAR: a novel deep learning-based hybrid framework for the interpretable prediction of androgen receptor antagonists	plenoi/deepar	False	True	Python		True	False
+10.1186/s13321-023-00710-2	2022-12-23	PROTEOMAS: a workflow enabling harmonized proteomic meta-analysis and proteomic signature mapping	aileenbahl/proteomas	False	True	Python		False	False
+10.1186/s13321-023-00712-0	2022-12-07	Harnessing Shannon entropy-based descriptors in machine learning models to enhance the prediction accuracy of molecular properties	shannondescriptors/mlp-based-dnn-models-with-shannon-entropy-framework	False	True	Python	Apache-2.0	True	False
+10.1186/s13321-023-00691-2	2022-12-06	Force field-inspired molecular representation learning for property prediction	fate1997/ffinet	False	True	Python	GPL-3.0	True	False
+10.1186/s13321-023-00693-0	2022-12-03	Reconstruction of lossless molecular representations from fingerprints	knu-lcbc/molforge	False	True	Jupyter Notebook	Other	True	True
+10.1186/s13321-023-00713-z	2022-11-22	Investigation of chemical structure recognition by encoderdecoder models in learning progress	mizuno-group/2022	False	True			False	False
+10.1186/s13321-023-00695-y	2022-11-18	MAW: the reproducible Metabolome Annotation Workflow for untargeted tandem mass spectrometry	zmahnoor14/maw-benchmark	False	True	Jupyter Notebook		True	False
+10.1186/s13321-023-00685-0	2022-11-16	Global reactivity models are impactful in industrial synthesis applications	pauloneves-git/bee	False	True	Python	Apache-2.0	True	False
+10.1186/s13321-023-00683-2	2022-11-13	Two years of explicit CiTO annotations	jcheminform/markdown-jcheminf	True	True	Lua	MIT	False	False
+10.1186/s13321-023-00707-x	2022-11-11	Chemical rules for optimization of chemical mutagenicity via matched molecular pairs analysis and machine learning methods	louchaofeng/ames-mutagenicity-optimization	False	True	Python		True	False
+10.1186/s13321-022-00676-7	2022-11-08	Large-scale prediction of activity cliffs using machine and deep learning methods of increasing complexity	tamshun/large-scale_acprediction	False	True	Jupyter Notebook		False	False
+10.1186/s13321-023-00698-9	2022-11-08	ABT-MPNN: an atom-bond transformer-based message-passing neural network for molecular property prediction	lcy02/abt-mpnn	False	True	Python	MIT	False	False
+10.1186/s13321-023-00678-z	2022-11-06	Critical assessment of synthetic accessibility scores in computer-assisted synthesis planning	grzsko/asap	True	True	Jupyter Notebook	MIT	True	False
+10.1186/s13321-022-00664-x	2022-10-21	Visualizing chemical space networks with RDKit and NetworkX	vfscalfani/csn_tutorial	False	True	Jupyter Notebook	BSD-3-Clause	True	False
+10.1186/s13321-023-00701-3	2022-10-21	PSnpBind-ML: predicting the effect of binding site mutations on protein-ligand binding affinity	bigcat-um/psnpbind-ml-notebook	True	False	Jupyter Notebook	CC0-1.0	True	False
+10.1186/s13321-023-00711-1	2022-10-15	MolFilterGAN: a progressively augmented generative adversarial network for triaging AI-designed molecules	molfiltergan/molfiltergan	False	True	Python	Apache-2.0	True	False
+10.1186/s13321-022-00674-9	2022-10-14	MORTAR: a rich client application for in silico molecule fragmentation	felixbaensch/mortar	False	True	Java	GPL-3.0	False	False
+10.1186/s13321-023-00690-3	2022-10-10	DFFNDDS: prediction of synergistic drug combinations with dual feature fusion networks	sorachel/dffndds	False	True	Python		True	False
+10.1186/s13321-022-00672-x	2022-10-10	Papyrus: a large-scale curated dataset aimed at bioactivity predictions	cddleiden/papyrus-scripts	True	False	Jupyter Notebook	MIT	False	False
+10.1186/s13321-023-00679-y	2022-10-05	COMA: efficient structure-constrained molecular generation using contractive and margin losses	mathcom/coma	False	True	Jupyter Notebook	BSD-3-Clause	False	False
+10.1186/s13321-022-00673-w	2022-09-30	XSMILES: interactive visualization for molecules, SMILES and XAI attribution scores	bayer-group/xsmiles	False	True	TypeScript	BSD-3-Clause	True	False
+10.1186/s13321-022-00660-1	2022-09-26	Dimensionally reduced machine learning model for predicting single component octanolwater partition coefficients	teixeiraresearchlab/mf-logp_development-	False	True	Python	MIT	True	False
+10.1186/s13321-023-00681-4	2022-09-22	Generative model based on junction tree variational autoencoder for HOMO value prediction and molecular optimization	vldknd/vae_qm9	False	True	Python		True	False
+10.1186/s13321-023-00729-5	2022-09-15	A comparison of approaches to accessing existing biological and chemical relational databases via SPARQL	galgonek/r2rms-review	False	True	Java		False	False
+10.1186/s13321-022-00665-w	2022-09-14	ReMODE: a deep learning-based web server for target-specific drug design	micahwang/remode	False	True			True	False
+10.1186/s13321-023-00682-3	2022-09-10	Explainable uncertainty quantifications for deep learning-based molecular property prediction	chuiyang/atom-based_uncertainty_model	False	True	Python		True	False
+10.1186/s13321-023-00689-w	2022-09-02	How to approach machine learning-based prediction of drug/compoundtarget interactions	hubiodatalab/protbench	True	False	Python	GPL-3.0	True	False
+10.1186/s13321-022-00657-w	2022-09-02	Tuning gradient boosting for imbalanced bioassay modelling with custom loss functions	dahvida/gradient_boosting_clf	False	True	Python	MIT	True	False
+10.1186/s13321-022-00663-y	2022-08-31	An algorithm to classify homologous series within compound datasets	adelenelai/onglai-classify-homologues	False	True	Python	Apache-2.0	True	True
+10.1186/s13321-023-00699-8	2022-08-29	Predicting RP-LC retention indices of structurally unknown chemicals from mass spectrometry data	jimbo994/nl2ri	False	True	Jupyter Notebook	MIT	True	False
+10.1186/s13321-022-00652-1	2022-08-26	Scalable training of graph convolutional neural networks for fast and accurate predictions of HOMO-LUMO gap in molecules	ornl/hydragnn	False	True	Python	BSD-3-Clause	True	True
+10.1186/s13321-022-00654-z	2022-08-17	One class classification for the detection of 2 adrenergic receptor agonists using single-ligand dynamic interaction data	lit-ccm-lab/ocsvm-adrb2	False	True	Python		True	False
+10.1186/s13321-022-00671-y	2022-08-13	Investigation of the structure-odor relationship using a Transformer model	zhenghah/0607	False	True	Jupyter Notebook	MIT	False	False
+10.1186/s13321-023-00722-y	2022-08-12	OWSum: algorithmic odor prediction and insight into structure-odorrelationships	pyrfume/pyrfume-data	False	True	Jupyter Notebook	MIT	True	False
+10.1186/s13321-022-00649-w	2022-08-08	DrugTax: package for drug taxonomy identification and explainable feature extraction	moreiralab/drugtax	False	True	Python	GPL-3.0	True	True
+10.1186/s13321-022-00659-8	2022-08-02	MDDI-SCL: predicting multi-type drug-drug interactions via supervised contrastive learning	shenggenglin/mddi-scl	False	True	Python	MIT	False	True
+10.1186/s13321-023-00702-2	2022-07-31	Deep generative model for drug design from protein target sequence	viko-3/targetgan	False	True	Python		True	False
+10.1186/s13321-022-00675-8	2022-07-13	Multimodal data fusion for supervised learning-based identification of USP7 inhibitors: a systematic comparison	hovi123123/open-source	False	False	Python	Apache-2.0	False	False
+10.1186/s13321-022-00641-4	2022-07-05	Robustness under parameter and problem domain alterations of Bayesian optimization methods for chemical reactions	pseudonium/edbo	True	False	Python	MIT	False	False
+10.1186/s13321-022-00643-2	2022-07-03	Conditional reduction of the loss value versus reinforcement learning for biassing a de-novo drug design generator	amine179/drugdesign	False	True	Jupyter Notebook		True	False
+10.1186/s13321-022-00667-8	2022-06-30	Human-in-the-loop assisted de novo molecular design	molecularai/reinvent-hitl	False	False	Python	Apache-2.0	True	False
+10.1186/s13321-023-00717-9	2022-06-28	qHTSWaterfall: 3-dimensional visualization software for quantitative high-throughput screening (qHTS) data	ncats/qhtswaterfall	False	True	R	Other	True	False
+10.1186/s13321-023-00686-z	2022-06-19	Efficient virtual high-content screening using a distance-aware transformer model	mmodbasel/highcontentscreening	False	True	Python		False	False
+10.1186/s13321-023-00697-w	2022-06-10	Notes on molecular fragmentation and parameter settings for a dissipative particle dynamics study of a C10E4/water mixture with lamellar bilayer formation	zielesny/mfsim	False	True	Java	GPL-3.0	False	False
+10.1186/s13321-023-00703-1	2022-05-24	VSFlow: an open-source ligand-based virtual screening tool	czodrowskilab/vsflow	False	True	Python	MIT	False	False
+10.1186/s13321-022-00677-6	2022-05-17	Development of an open-source software for isomer enumeration	csms-ethz/combiff	False	True	C++	BSD-3-Clause	True	False
+10.1186/s13321-022-00636-1	2022-05-13	Machine learning for identification of silylated derivatives from mass spectra	aalto-ics-kepaco/ppiprediction-w-iokr-mkl	False	True	Matlab		False	False
+10.1186/s13321-022-00642-3	2022-05-08	Review of techniques and models used in optical chemical structure recognition in images and scanned documents	bradleyemi/chemtype2	False	True	Python	MIT	False	False
+10.1186/s13321-023-00700-4	2022-05-05	Double-head transformer neural network for molecular property prediction	songyuanbing6/dhtnn	False	True	Python	MIT	False	False
+10.1186/s13321-022-00648-x	2022-04-15	Improving VAE based molecular representations for compound property prediction	znavoyan/vae-embeddings	False	True	Jupyter Notebook	Apache-2.0	False	False
+10.1186/s13321-022-00646-z	2022-04-14	Augmented Hill-Climb increases reinforcement learning efficiency for language-based de novo molecule generation	morgancthomas/smiles-rnn	False	True	Python	MIT	True	True
+10.1186/s13321-022-00658-9	2022-04-11	Naturally-meaningful and efficient descriptors: machine learning of material properties based on robust one-shot ab initio descriptors	sheriftawfikabbas/crystalfeatures	False	True	Julia		True	False
+10.1186/s13321-023-00694-z	2022-04-09	DrugEx v3: scaffold-constrained drug design with graph transformer-based reinforcement learning	cddleiden/drugex	False	True	Jupyter Notebook	MIT	False	False
+10.1186/s13321-022-00633-4	2022-04-04	Chemical named entity recognition in the texts of scientific publications using the nave Bayes classifier approach	olga-tarasova/cner	False	True	Python	CC0-1.0	False	False
+10.1186/s13321-022-00645-0	2022-03-21	Implementation of a soft grading system for chemistry in a Moodle plugin	laboratoire-de-chemoinformatique/moodle-qtype_molsimilarity	False	True	JavaScript		True	False
+10.1186/s13321-022-00639-y	2022-03-18	Predicting the mutation effects of proteinligand interactions via end-point binding free energy calculations: strategies and analyses	yuyangniuer/mutation	False	True	Jupyter Notebook	GPL-3.0	False	False
+10.1186/s13321-022-00640-5	2022-03-18	TUCAN: A molecular identifier and descriptor applicable to the whole periodic table from hydrogen to oganesson	tucan-nest/tucan	False	True	Python	GPL-3.0	True	True
+10.1186/s13321-022-00650-3	2022-03-16	A fingerprints based molecular property prediction method using the BERT model	fanganpai/fp2bert	False	True	Jupyter Notebook		True	False
+10.1186/s13321-023-00687-y	2022-03-10	MDSuite: comprehensive post-processing tool for particle simulations	zincware/mdsuite	False	True	Python	EPL-2.0	True	True
+10.1186/s13321-022-00623-6	2022-03-01	Designing optimized drug candidates with Generative Adversarial Network	larngroup/gan-drug-generator	False	True	Python	GPL-3.0	True	False
+10.1186/s13321-022-00656-x	2022-02-24	Scaffold Generator: a Java library implementing molecular scaffold functionalities in the Chemistry Development Kit (CDK	julian-z98/scaffoldgenerator	False	True	Java	LGPL-2.1	True	False
+10.1186/s13321-022-00644-1	2022-02-14	Random-forest model for drugtarget interaction prediction via KullbackLeibler divergence	college-of-pharmacy-gachon-university/kld2	False	True	Jupyter Notebook		False	False
+10.1186/s13321-022-00666-9	2022-02-11	Predicting chemical structure using reinforcement learning with a stack-augmented conditional variational autoencoder	hwanheekim813/stack_cvae	False	True	Python	MIT	True	False
+10.1186/s13321-022-00594-8	2022-01-12	Improving the performance of models for one-step retrosynthesis through re-ranking	coleygroup/rxn-ebm	False	True	Python	MIT	False	False
+10.1186/s13321-022-00634-3	2022-01-10	Integrating concept of pharmacophore with graph neural networks for chemical property prediction and interpretation	chloekong/rg-mpnn	False	True	Jupyter Notebook	MIT	True	False
+10.1186/s13321-022-00603-w	2021-12-29	Off-targetP ML: an open source machine learning framework for off-target panel safety assessment of small molecules	pharminfovienna/off-target-p-ml	True	False	R		True	False
+10.1186/s13321-022-00635-2	2021-12-26	Using Jupyter Notebooks for re-training machine learning models	pharminfovienna/retraining_notebook	False	True	Jupyter Notebook		True	False
+10.1186/s13321-022-00638-z	2021-12-11	From theory to experiment: transformer-based generation enables rapid discovery of novel reactions	hongliangduan/from-theory-to-experiment-transformer-based-generation-enables-rapid-discovery-of-novel-reactions	False	True	Python		True	False
+10.1186/s13321-022-00600-z	2021-12-07	ChemInformatics Model Explorer (CIME): exploratory analysis of chemical model explanations	jku-vds-lab/cime	False	True	TypeScript		True	False
+10.1186/s13321-022-00599-3	2021-11-24	Transformer-based molecular optimization beyond matched molecular pairs	molecularai/deep-molecular-optimization	False	False	Python	Apache-2.0	True	False
+10.1186/s13321-022-00614-7	2021-11-12	European Registry of Materials: global, unique identifiers for (undisclosed) nanomaterials	nanocommons/identifiers	False	True		CC0-1.0	False	False
+10.1186/s13321-022-00582-y	2021-11-11	LEADD: Lamarckian evolutionary algorithm for de novo drug design	uamcantwerpen/leadd	False	True	C++	GPL-3.0	True	False
+10.1186/s13321-022-00601-y	2021-11-03	Explaining and avoiding failure modes in goal-directed generation of small molecules	sanofi-public/idd-papers-avoiding_failure_modes	False	True	Jupyter Notebook	Other	True	False
+10.1186/s13321-022-00590-y	2021-10-26	MolData, a molecular benchmark for disease and target based machine learning	transilico/moldata	False	True	Python	Other	True	False
+10.1186/s13321-022-00592-w	2021-10-14	Decomposing compounds enables reconstruction of interaction fingerprints for structure-based drug screening	madasme/frinrecon	False	True	Python		True	False
+10.1186/s13321-021-00577-1	2021-10-08	Processing binding data using an open-source workflow	loicsamuel/knime-tsa-analysis	False	True			True	False
+10.1186/s13321-022-00589-5	2021-09-25	DeSIDE-DDI: interpretable prediction of drug-drug interactions using drug-induced gene expressions	gist-csbl/deside-ddi	False	True	Jupyter Notebook	GPL-3.0	True	False
+10.1186/s13321-022-00596-6	2021-08-30	Deep learning-driven prediction of drug mechanism of action from large-scale chemical-genetic interaction profiles	lcy02/mtb_cgip_pred	False	True	Jupyter Notebook		True	False
+10.1186/s13321-021-00566-4	2021-08-25	Molecular generation by Fast Assembly of (Deep)SMILES fragments	unixjunkie/fasmifra	False	True	Python	GPL-3.0	True	False
+10.1186/s13321-021-00573-5	2021-08-11	PSnpBind: a database of mutated binding site proteinligand complexes constructed using a multithreaded virtual screening workflow	bigcat-um/psnpbind-build	True	False		AGPL-3.0	False	False
+10.1186/s13321-022-00595-7	2021-08-06	Application of deep metric learning to molecular graph similarity	dcoupry/chemdist_paper	False	True	TeX	Apache-2.0	True	False
+10.1186/s13321-022-00583-x	2021-08-01	Machine learning approaches to optimize small-molecule inhibitors for RNA targeting	csbarak/primroselightning	False	True		MIT	True	False
+10.1186/s13321-021-00576-2	2021-07-28	Splitting chemical structure data sets for federated privacy-preserving machine learning	melloddy/chemfold	False	True	Python	MIT	True	True
+10.1186/s13321-021-00570-8	2021-07-20	Chemical toxicity prediction based on semi-supervised learning and graph convolutional neural network	chen709847237/ssl-gcn	False	True	Python		True	False
+10.1186/s13321-021-00551-x	2021-07-16	A hybrid framework for improving uncertainty quantification in deep learning-based QSAR regression modeling	wangdingyan/hybriduq	False	True	Python	MIT	True	False
+10.1186/s13321-021-00571-7	2021-07-15	The effect of noise on the predictive limit of QSAR models	usepa/comptox-cheminf-modelexperiments-erroreffects	False	True	Python		False	False
+10.1186/s13321-021-00579-z	2021-07-13	Uncertainty-aware prediction of chemical reaction yields with graph neural networks	seokhokang/reaction_yield_nn	False	True	Python	Apache-2.0	True	False
+10.1186/s13321-021-00558-4	2021-07-09	MS2DeepScore: a novel deep learning similarity measure to compare tandem mass spectra	matchms/ms2deepscore	False	True	Jupyter Notebook	Apache-2.0	True	True
+10.1186/s13321-021-00572-6	2021-07-08	MERMAID: an open source automated hit-to-lead method based on deep reinforcement learning	sekijima-lab/mermaid	False	True	Jupyter Notebook		True	False
+10.1186/s13321-021-00562-8	2021-07-07	QSPR modeling of selectivity at infinite dilution of ionic liquids	klimenko-od91/qspr_selinfdil_ils	False	True	R		True	False
+10.1186/s13321-022-00584-w	2021-07-04	Sequence-based prediction of protein binding regions and drugtarget interactions	gist-csbl/hots	False	True	Python	GPL-3.0	False	False
+10.1186/s13321-021-00580-6	2021-06-26	HobPre: accurate prediction of human oral bioavailability for small molecules	whymin/hob	False	True	Python		True	False
+10.1186/s13321-021-00559-3	2021-06-25	Classifying natural products from plants, fungi or bacteria using the COCONUT database and machine learning	reymond-group/coconut-tmap-svm	False	True	HTML	MIT	True	False
+10.1186/s13321-021-00554-8	2021-06-18	Scalable estimator of the diversity for de novo molecular generation resulting in a more robust QM dataset (OD9) and a more efficient molecular optimization	jules-leguy/evomol	False	True	Python	LGPL-2.1	False	False
+10.1186/s13321-021-00548-6	2021-06-15	ProLIF: a library to encode molecular interactions as fingerprints	chemosim-lab/prolif-paper	False	True	Jupyter Notebook	Apache-2.0	True	False
+10.1186/s13321-021-00565-5	2021-06-07	Deep scaffold hopping with multimodal transformer neural networks	prokia/deephops	False	True	Python	MIT	True	False
+10.1186/s13321-021-00547-7	2021-05-27	PUResNet: prediction of protein-ligand binding sites using deep residual neural network	jivankandel/puresnet	False	True	Python		True	False
+10.1186/s13321-021-00530-2	2021-05-03	MassSpecBlocks: a web-based tool to create building blocks and sequences of nonribosomal peptides and polyketides for tandem mass spectra analysis	privrja/massspecblocks	False	True		MIT	True	False
+10.1186/s13321-021-00542-y	2021-05-03	How can SHAP values help to shape metabolic stability of chemical compounds?	gmum/metstab-shap	False	True	Python	MIT	True	False
+10.1186/s13321-021-00538-8	2021-04-29	DECIMER 1.0: deep learning for chemical image recognition using transformers	kohulan/decimer-tpu	False	True	Python	MIT	False	False
+10.1186/s13321-021-00529-9	2021-04-28	MAYGEN: an open-source chemical structure generator for constitutional isomers based on the orderly generation principle	mehmetazizyirik/maygen	False	True	Java	MIT	True	False
+10.1186/s13321-021-00537-9	2021-04-14	QPHAR: quantitative pharmacophore activity relationship: method and validation	stefankohlbacher/quantpharmacophore	False	True	Python	GPL-3.0	True	False
+10.1186/s13321-021-00553-9	2021-03-24	Using informative features in machine learning based method for COVID-19 drug repurposing	rosaaghdam/drug-target	False	True	MATLAB		False	False
+10.1186/s13321-021-00540-0	2021-03-08	GraphDTI: A robust deep learning predictor of drug-target interactions from multiple heterogeneous data	guannan1900/graphdti	False	True	Python		False	False
+10.1186/s13321-021-00549-5	2021-02-24	Investigation of pharmacological mechanism of natural product using pathway fingerprints similarity based on drug-target-pathway heterogenous network	huihui1126/drugsim-pathway	False	True	Perl		True	False
+10.1186/s13321-021-00519-x	2021-02-23	Benchmarks for interpretation of QSAR models	ci-lab-cz/ibenchmark	False	True	Jupyter Notebook	MIT	False	False
+10.1186/s13321-021-00513-3	2021-02-12	Deep learning integration of molecular and interactome data for proteincompound interaction prediction	njk-901aru/multi_dti	False	True	Python		False	False
+10.1186/s13321-021-00511-5	2021-02-07	Assessing the calibration in toxicological in vitro models with conformal prediction	volkamerlab/cptox21_manuscript_si	False	True	Jupyter Notebook	MIT	False	False
+10.1186/s13321-021-00533-z	2021-02-04	MLSolvA: solvation free energy prediction from pairwise atomistic interactions by machine learning	ht0620/mlsolva	False	True	Python	BSD-3-Clause	False	False
+10.1186/s13321-021-00496-1	2021-01-08	DECIMER-Segmentation: Automated extraction of chemical structure depictions from scientific literature	kohulan/decimer-image-segmentation	False	True	Jupyter Notebook	MIT	False	False
+10.1186/s13321-021-00541-z	2021-01-04	CardioTox net: a robust predictor for hERG channel blockade based on deep learning meta-feature ensembles	abdulk084/cardiotox	False	True	Python		False	False
+10.1186/s13321-021-00512-4	2020-12-21	STOUT: SMILES to IUPAC names using neural machine translation	kohulan/smiles-to-iupac-translator	False	True	Python	MIT	True	True
+10.1186/s13321-021-00490-7	2020-12-15	RegioSQM20: improved prediction of the regioselectivity of electrophilic aromatic substitutions	jensengroup/regiosqm20	False	True	Python	MIT	True	False
+10.1186/s13321-021-00525-z	2020-12-10	Nonadditivity in public and inhouse data: implications for drug design	molecularai/nonadditivityanalysis	False	True	Jupyter Notebook	Apache-2.0	True	False
+10.1186/s13321-021-00502-6	2020-12-10	ChemProps: A RESTful API enabled database for composite polymer name standardization	duke-matsci/chemprops	True	False	Python		False	False
+10.1186/s13321-021-00518-y	2020-12-01	A machine learning platform for the discovery of materials	carlyman77/materialsdiscoveryml	False	True		Other	False	False
+10.1186/s13321-021-00498-z	2020-11-13	Diversity oriented Deep Reinforcement Learning for targeted molecule generation	larngroup/diversedrl	False	True	Python	GPL-3.0	False	False
+10.1186/s13321-021-00500-8	2020-11-11	Learning chemistry: exploring the suitability of machine learning for the task of structure-based chemical ontology classification	mglauer/cheleary	False	True	Python	AGPL-3.0	False	False
+10.1186/s13321-021-00509-z	2020-11-10	Flame: an open source framework for model development, hosting, and usage in production environments	phi-grib/flame	False	True	Python	GPL-3.0	False	False
+10.1186/s13321-021-00497-0	2020-10-30	Molecular optimization by capturing chemists intuition using deep neural networks	molecularai/deep-molecular-optimization	False	False	Python	Apache-2.0	True	False
+10.1186/s13321-021-00488-1	2020-10-21	Structure-aware protein solubility prediction from sequence through graph convolutional network and predicted contact map	jcchan23/graphsol	False	True	Python	MIT	False	False
+10.1186/s13321-020-00482-z	2020-10-19	Substructure-based neural machine translation for retrosynthetic prediction	knu-chem-lcbc/fragment_based_retrosynthesis	False	True	Python		True	False
+10.1186/s13321-020-00476-x	2020-09-21	ReactionCode: format for reaction searching, analysis, classification, transform, and encoding/decoding	victoriendelannee/reactioncode	False	True	Java		False	False
+10.1186/s13321-021-00505-3	2020-09-15	Extended similarity indices: the benefits of comparing more than two objects simultaneously. Part 1: Theory and characteristics	ramirandaq/multiplecomparisons	False	True	Python	GPL-3.0	False	False
+10.1186/s13321-020-00478-9	2020-09-09	COCONUT online: Collection of Open Natural Products database	msorok/naturalproductsonline	False	True	JavaScript		False	False
+10.1186/s13321-021-00495-2	2020-09-03	Hybrid semantic recommender system for chemical compounds in large-scale datasets	lasigebiotm/chemrecsys	False	True	Python		False	False
+10.1186/s13321-020-00473-0	2020-08-02	Memory-assisted reinforcement learning for diverse molecular de novo design	tblaschke/reinvent-memory	False	True	HTML	MIT	False	False
+10.1186/s13321-020-00481-0	2020-07-15	ChemSpectra: a web-based spectra editor for analytical data	complat/react-spectra-editor	False	True	JavaScript	AGPL-3.0	False	False
+10.1186/s13321-021-00487-2	2020-07-13	MAIP: a web service for predicting bloodstage malaria inhibitors	flatkinson/standardiser	False	True	Jupyter Notebook		False	False
+10.1186/s13321-020-00465-0	2020-07-07	A review of optical chemical structure recognition tools	kohulan/ocsr_review	False	True	Python	MIT	False	False
+10.1186/s13321-020-00472-1	2020-07-03	AiZynthFinder: a fast, robust and flexible open-source software for retrosynthetic planning	molecularai/aizynthfinder	False	True	Python	MIT	False	False
+10.1186/s13321-020-00458-z	2020-06-19	EvoMol: a flexible and interpretable evolutionary algorithm for unbiased de novo molecular generation	jules-leguy/evomol	False	True	Python	LGPL-2.1	False	False
+10.1186/s13321-020-00461-4	2020-06-18	Linking chemical and disease entities to ontologies by integrating PageRank with extracted relations from literature	lasigebiotm/reel	False	True	Python	Apache-2.0	False	False
+10.1186/s13321-021-00485-4	2020-06-03	Molecule Set Comparator (MSC): a CDK-based open richclient tool for molecule set similarity evaluations	zielesny/msc	False	True	Java	GPL-3.0	False	False
+10.1186/s13321-020-00452-5	2020-05-24	CompRet: a comprehensive recommendation framework for chemical synthesis planning with algorithmic enumeration	fullswing/compret	False	True	Java		False	False
+10.1186/s13321-021-00506-2	2020-05-08	Analysis of the effects of related fingerprints on molecular similarity using an eigenvalue entropy approach	hkuwahara/chem-fp-lambda-entropy	False	True	R		False	False
+10.1186/s13321-020-00462-3	2020-04-17	Maximum common property: a new approach for molecular similarity	aantelo00/mcphd	False	True	Java	GPL-3.0	False	False
+10.1186/s13321-020-00455-2	2020-04-15	spyrmsd: symmetry-corrected RMSD calculations in Python	rmeli/pyrmsd	False	True	Python	MIT	False	False
+10.1186/s13321-020-00435-6	2020-02-17	kGCN: a graph-based deep learning framework for chemical structures	clinfo/kgcn	False	True	Python	Other	False	False
+10.1186/s13321-020-00432-9	2020-02-15	MFsiman open Java all-in-one rich-client simulation environment for mesoscopic simulation	zielesny/mfsim	False	True	Java	GPL-3.0	False	False
+10.1186/s13321-020-00431-w	2020-02-11	CReM: chemically reasonable mutations framework for structure generation	drrdom/crem	False	True	Jupyter Notebook	BSD-3-Clause	False	False
+10.1186/s13321-020-00424-9	2020-02-04	Review on natural products databases: where to find data in 2020	msorok/coconut	False	True	Java		False	False
+10.1186/s13321-020-00439-2	2020-01-31	SYBA: Bayesian estimation of synthetic accessibility of organic compounds	lich-uct/syba	False	True	Python	GPL-3.0	False	False
+10.1186/s13321-020-00430-x	2020-01-29	Inductive transfer learning for molecular activity prediction: Next-Gen QSAR Models with MolPMoFiT	xinhaoli74/molpmofit	False	True	Jupyter Notebook		False	False
+10.1186/s13321-020-00433-8	2020-01-28	The diatomic molecular spectroscopy database	hlslxy/dmsd	False	True	PHP	Apache-2.0	False	False
+10.1186/s13321-020-00422-x	2019-12-18	KnowTox: pipeline and case study for confident prediction of potential toxic effects of compounds in early phases of development	volkamerlab/knowtox_manuscript_si	False	True	Jupyter Notebook	BSD-3-Clause	False	False
+10.1186/s13321-020-00468-x	2019-12-13	Structureactivity relationship-based chemical classification of highly imbalanced Tox21 datasets	idakwo/sar_imbalance_smoteenn	False	True	Jupyter Notebook		False	False
+10.1186/s13321-020-00423-w	2019-10-12	Transformer-CNN: Swiss knife for QSAR modeling and interpretation	bigchem/transformer-cnn	False	True	Python		False	False
+10.1186/s13321-020-0414-z	2019-10-04	A self-attention based message passing neural network for predicting molecular lipophilicity and aqueous solubility	tbwxmu/sampn	False	True	Python		False	False
+10.1186/s13321-020-00437-4	2019-10-02	Aromatic clusters in proteinprotein and proteindrug complexes	elanzarotti/aromatics	False	True	Python	GPL-3.0	False	False
+10.1186/s13321-020-00425-8	2019-09-22	GEN: highly efficient SMILES explorer using autodidactic generative examination networks	ruudfirsa/smiles-gen	False	True	Python	BSD-3-Clause	False	False
+10.1186/s13321-019-0407-y	2019-09-17	Building attention and edge message passing neural networks for bioactivity and physicalchemical property prediction	edvardlindelof/graph-neural-networks-for-drug-discovery	False	True	Python	MIT	False	False
+10.1186/s13321-019-0397-9	2019-09-13	A de novo molecular generation method using latent vector based generative adversarial network	dierme/latent-gan	False	True	Python		False	False
+10.1186/s13321-019-0396-x	2019-08-29	Efficient learning of non-autoregressive graph variational autoencoders for molecular graph generation	seokhokang/graphvae_approx	False	True	Python		False	False
+10.1186/s13321-020-00420-z	2019-08-26	COVER: conformational oversampling as data augmentation for molecules	pharminfovienna/cover-conformational-oversampling	False	True	Python		False	False
+10.1186/s13321-019-0394-z	2019-08-22	ACID: a free tool for drug repurposing using consensus inverse docking strategy	fwangccnu/acid	False	True	TSQL		False	False
+10.1186/s13321-019-0404-1	2019-08-22	Mol-CycleGAN: a generative model for molecular optimization	ardigen/mol-cycle-gan	False	True	Jupyter Notebook	MIT	False	False
+10.1186/s13321-019-0403-2	2019-08-20	CyBy2: a strongly typed, purely functional framework for chemical data management	stefan-hoeck/cyby2	False	True	Scala	GPL-3.0	False	False
+10.1186/s13321-019-0399-7	2019-08-13	HastaLaVista, a web-based user interface for NMR-based untargeted metabolic profiling analysis in biomedical sciences: towards a new publication standard	jwist/hastalavista	False	True	JavaScript	Other	False	False
+10.1186/s13321-020-00443-6	2019-08-07	QSAR-derived affinity fingerprints (part 1): fingerprint construction and modeling performance for similarity searching, bioactivity classification and scaffold hopping	skutac/qaffps	False	True	Python	MIT	False	False
+10.1186/s13321-019-0392-1	2019-08-05	Multi-task learning with a natural metric for quantitative structure activity relationship learning	nsadawi/mtl-qsar	False	True	Java		False	False
+10.1186/s13321-019-0393-0	2019-07-30	Randomized SMILES strings improve the quality of molecular generative models	undeadpixel/reinvent-randomized	False	True	Python	MIT	False	False
+10.1186/s13321-020-0409-9	2019-07-23	SmartGraph: a network pharmacology investigation platform	ncats/smartgraph_backend	False	True	Java	MIT	False	False
+10.1186/s13321-020-00419-6	2019-07-15	Multiobjective de novo drug design with recurrent neural networks and nondominated sorting	jyasonik/moleculemo	False	True	Jupyter Notebook		False	False
+10.1186/s13321-020-0413-0	2019-06-07	Evaluation of deep and shallow learning methods in chemogenomics for the prediction of drugs specificity	bplaye/nnk_dti	False	True	Jupyter Notebook		False	False
+10.1186/s13321-019-0384-1	2019-05-23	Open-source QSAR models for pKa prediction using multiple machine learning approaches	niehs/opera	True	False	MATLAB	MIT	False	False
+10.1186/s13321-019-0402-3	2019-05-12	Learning important features from multi-view data to predict drug side effects	liangxujun/multi-lrsl	False	True	Python		False	False
+10.1186/s13321-019-0378-z	2019-05-03	NaPLeS: a natural products likeness scorerweb application and database	msorok/npdatabasefiller	False	True	Java	MIT	False	False
+10.1186/s13321-019-0389-9	2019-04-26	A multiple classifier system identifies novel cannabinoid CB2 receptor ligands	drordas/d2-mcs	False	True	R	LGPL-3.0	False	False
+10.1186/s13321-019-0372-5	2019-03-30	Fast, efficient fragment-based coordinate generation for Open Babel	n-yoshikawa/ob-fragment-generation	False	True	Jupyter Notebook	MIT	False	False
+10.1186/s13321-019-0370-7	2019-03-25	Bioactivity-explorer: a web application for interactive visualization and exploration of bioactivity data	jianping-grp/ng-b17r	False	True	TypeScript	MIT	False	False
+10.1186/s13321-019-0382-3	2019-02-25	Flexible heuristic algorithm for automatic molecule fragmentation: application to the UNIFAC group contribution model	simonmb/fragmentation_algorithm_paper	False	True	Python	MIT	False	False
+10.1186/s13321-019-0376-1	2019-02-19	Combining structural and bioactivity-based fingerprints improves prediction performance and scaffoldhopping capability	oml90/combining-structural-and-bioactivity-descriptors	False	True	Python	MIT	False	False
+10.1186/s13321-019-0405-0	2019-01-08	The rcdk and cluster R packages applied to drug candidate selection	voicuadr/rclusters	False	True	R		False	False
+10.1186/s13321-019-0354-7	2018-10-19	Bayesian optimization for conformer generation	lucianlschan/conformer-geometry	False	True	Jupyter Notebook		False	False
+10.1186/s13321-019-0368-1	2018-10-02	Multi-channel PINN: investigating scalable and transferable neural networks for drug discovery	mhlee0903/multi_channels_pinn	False	True	Python		False	False
