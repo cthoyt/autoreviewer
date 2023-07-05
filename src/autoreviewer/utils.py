@@ -1,5 +1,7 @@
+"""Utilities."""
+
 import json
-from typing import Optional
+from typing import Any, Optional
 
 import pystow
 import requests
@@ -17,13 +19,17 @@ MODULE = pystow.module("jcheminf")
 
 
 def strip(s: str) -> str:
+    """Strip bad characters."""
     for t in ".,\\/()[]{}_":
         s = s.strip(t)
     return s
 
 
 @rate_limited(calls=5_000, period=60 * 60)
-def github_api(url: str, accept: Optional[str] = None, params: Optional[dict[str, any]] = None) -> requests.Response:
+def github_api(
+    url: str, accept: Optional[str] = None, params: Optional[dict[str, Any]] = None
+) -> requests.Response:
+    """Request an endpoint from the GitHub API."""
     headers = {
         "Authorization": f"token {TOKEN}",
     }
@@ -35,12 +41,13 @@ def github_api(url: str, accept: Optional[str] = None, params: Optional[dict[str
 LINK_PREFIX = "https://jcheminf.biomedcentral.com/articles/10.1186/"
 
 
-def get_jcheminf_repositories_dict():
+def _get_jcheminf_repositories_dict():
+    # NOTE: this is easily replaced with web scraping
     path = MODULE.join(name="github-dois.json")
     if path.is_file():
         return json.loads(path.read_text())
     rv = {}
-    for i, repo in enumerate(iter_jcheminf_repositories(), start=1):
+    for repo in _iter_jcheminf_repositories():
         name = repo["full_name"]
         description = repo.get("description")
         if not description or LINK_PREFIX not in description:
@@ -53,11 +60,9 @@ def get_jcheminf_repositories_dict():
     return rv
 
 
-def iter_jcheminf_repositories(owner: str = "jcheminform", force: bool = False):
-    """List repositories
-
-    .. seealso:: https://docs.github.com/en/rest/repos/repos#list-organization-repositories
-    """
+def _iter_jcheminf_repositories(owner: str = "jcheminform", force: bool = False):
+    """List repositories."""
+    # NOTE: this is easily replaced with web scraping
     # TODO make this more extensible later. this works b.c. there are less than 300
     for page in range(1, 5):
         path = MODULE.join("github-jcheminform", name=f"{page}.json")
@@ -70,13 +75,3 @@ def iter_jcheminf_repositories(owner: str = "jcheminform", force: bool = False):
         ).json()
         path.write_text(json.dumps(r, indent=2))
         yield from r
-
-
-def _main():
-    from rich import print
-
-    print(get_jcheminf_repositories_dict())
-
-
-if __name__ == "__main__":
-    _main()

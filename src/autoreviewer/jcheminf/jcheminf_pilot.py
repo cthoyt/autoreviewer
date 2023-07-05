@@ -5,9 +5,9 @@ import hashlib
 import json
 import urllib.error
 from operator import itemgetter
+from pathlib import Path
 from textwrap import shorten
 from typing import Iterable
-from pathlib import Path
 
 import click
 import dateutil.parser
@@ -20,12 +20,7 @@ from tabulate import tabulate
 from tqdm.auto import tqdm, trange
 from tqdm.contrib.concurrent import process_map
 
-from autoreviewer.utils import (
-    MODULE,
-    WIKIDATA_ENDPOINT,
-    github_api,
-    strip,
-)
+from autoreviewer.utils import MODULE, WIKIDATA_ENDPOINT, github_api, strip
 
 HERE = Path(__file__).parent.resolve()
 DOI_TO_GITHUB_PATH = HERE.joinpath("doi_to_github.tsv")
@@ -36,7 +31,8 @@ EPUB_BASE_URL = "https://jcheminf.biomedcentral.com/track/epub/10.1186"
 JCHEMINF_DOI_PREFIX = "https://doi.org/10.1186/"
 
 
-def get_dois_wikidata(force: bool = True) -> set[str]:
+def _get_dois_wikidata(force: bool = True) -> set[str]:
+    # NOTE: this is easily replaced with web scraping
     path = MODULE.join(name="wikidata_dois.txt")
     if path.is_file() and not force:
         return {line.strip().lower() for line in path.read_text().splitlines()}
@@ -51,12 +47,13 @@ def get_dois_wikidata(force: bool = True) -> set[str]:
     return dois
 
 
-def get_dois_egon(
+def _get_dois_egon(
     user: str = "egonw",  # alternative use jcheminform
     repo: str = "jcheminform-kb",
     branch: str = "main",
     force: bool = False,
 ) -> set[str]:
+    # NOTE: this is easily replaced with web scraping
     path = MODULE.join(name="egon_dois.txt")
     if path.is_file() and not force:
         return set(path.read_text().splitlines())
@@ -162,7 +159,7 @@ def get_github(book: epub.EpubBook) -> Iterable[str]:
                 continue
         if not count:
             tqdm.write(
-                click.style(f"No GitHub found for ", fg="yellow")
+                click.style("No GitHub found for ", fg="yellow")
                 + click.style(f"{get_title(book)} ({get_year(book)})", fg="yellow", bold=True)
                 + "\n"
                 + text_cleaned.replace("\n", " ").replace("  ", " ")
@@ -171,6 +168,7 @@ def get_github(book: epub.EpubBook) -> Iterable[str]:
 
 
 def remove_non_ascii(string: str) -> str:
+    """Remove all non-ASCII characters from a string."""
     return string.encode("ascii", errors="ignore").decode()
 
 
@@ -184,7 +182,8 @@ def _process(doi: str):
         return doi, get_date(book), get_title(book), repos[0] if repos else None
 
 
-def scrape_articles(top: int = 27) -> set[str]:
+def scrape_dois(top: int = 27) -> set[str]:
+    """Scrape the list of DOIs from the Journal of Cheminformatics' articles page."""
     url = "https://jcheminf.biomedcentral.com/articles?searchType=journalSearch&sort=PubDate&page="
     dois: set[str] = set()
     for i in trange(1, top + 1, unit="page", desc="Scraping JChemInf site"):
@@ -212,7 +211,7 @@ def main():
     if DOI_TO_GITHUB_PATH.is_file():
         df = pd.read_csv(DOI_TO_GITHUB_PATH, sep="\t")
     else:
-        dois = scrape_articles()
+        dois = scrape_dois()
         rv = process_map(_process, dois, desc="processing ePubs", unit="article", chunksize=20)
         rv = sorted(set(rv), key=itemgetter(1), reverse=True)  # sort by date
 
@@ -234,7 +233,7 @@ def main():
         length = len(rv)
         has_epub = sum(bool(row[1]) for row in rv)
         has_github = sum(bool(row[3]) for row in rv)
-        print(
+        click.echo(
             f"Retrieved ePubs for {has_epub:,}/{length:,} ({has_epub / length:.1%}) "
             f"and GitHub repos for {has_github:,}/{length:,} ({has_github / length:.1%})"
         )
@@ -284,7 +283,11 @@ def main():
         base_url = f"https://raw.githubusercontent.com/{repo}/main"
         has_setup_config = any(
             requests.get(f"{base_url}/{n}").status_code == 200
-            for n in tqdm(["setup.cfg", "setup.py", "pyproject.toml"], desc="Checking setup metadata", leave=False)
+            for n in tqdm(
+                ["setup.cfg", "setup.py", "pyproject.toml"],
+                desc="Checking setup metadata",
+                leave=False,
+            )
         )
 
         readme_url = f"{base_url}/README.md"
