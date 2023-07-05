@@ -1,4 +1,5 @@
 """A script for downloading and analyzing articles from the Journal of Cheminformatics."""
+
 import datetime
 import hashlib
 import json
@@ -6,6 +7,7 @@ import urllib.error
 from operator import itemgetter
 from textwrap import shorten
 from typing import Iterable
+from pathlib import Path
 
 import click
 import dateutil.parser
@@ -21,10 +23,13 @@ from tqdm.contrib.concurrent import process_map
 from autoreviewer.utils import (
     MODULE,
     WIKIDATA_ENDPOINT,
-    get_jcheminf_repositories_dict,
     github_api,
     strip,
 )
+
+HERE = Path(__file__).parent.resolve()
+DOI_TO_GITHUB_PATH = HERE.joinpath("doi_to_github.tsv")
+ANALYSIS_PATH = HERE.joinpath("analysis.tsv")
 
 #: Add the DOI at the end of this URL to get an ePub file
 EPUB_BASE_URL = "https://jcheminf.biomedcentral.com/track/epub/10.1186"
@@ -201,10 +206,11 @@ def scrape_articles(top: int = 27) -> set[str]:
     return dois
 
 
-def _main():
-    output_path = MODULE.join(name="results.tsv")
-    if output_path.is_file() and False:
-        df = pd.read_csv(output_path, sep="\t")
+@click.command()
+def main():
+    """Run the analysis."""
+    if DOI_TO_GITHUB_PATH.is_file():
+        df = pd.read_csv(DOI_TO_GITHUB_PATH, sep="\t")
     else:
         dois = scrape_articles()
         rv = process_map(_process, dois, desc="processing ePubs", unit="article", chunksize=20)
@@ -212,9 +218,9 @@ def _main():
 
         columns = ["doi", "date", "title", "github"]
         df = pd.DataFrame(rv, columns=columns).drop_duplicates()
-        click.echo(f"Writing to {output_path}")
-        df.to_csv(output_path, sep="\t", index=False)
-        print(
+        click.echo(f"Writing to {DOI_TO_GITHUB_PATH}")
+        df.to_csv(DOI_TO_GITHUB_PATH, sep="\t", index=False)
+        click.echo(
             tabulate(
                 [
                     (doi.removeprefix("10.1186/"), date, shorten(title, 60), shorten(github, 60))
@@ -232,8 +238,6 @@ def _main():
             f"Retrieved ePubs for {has_epub:,}/{length:,} ({has_epub / length:.1%}) "
             f"and GitHub repos for {has_github:,}/{length:,} ({has_github / length:.1%})"
         )
-
-    enriched_path = MODULE.join(name="results_enriched.tsv")
 
     df = df[df["github"].notna()]
     repo_index = {}
@@ -314,8 +318,9 @@ def _main():
         df_slim_rows,
         columns=[*df.columns, *columns],
     )
-    df_slim.to_csv(enriched_path, sep="\t", index=False)
+    click.echo(f"Writing to {ANALYSIS_PATH}")
+    df_slim.to_csv(ANALYSIS_PATH, sep="\t", index=False)
 
 
 if __name__ == "__main__":
-    _main()
+    main()
