@@ -66,7 +66,7 @@ Desired interface:
 Run on the command line with:
 
 ```shell
-$ autoreview https://github.com/rs-costa/sbml2hyb
+$ autoreviewer https://github.com/rs-costa/sbml2hyb
 ```
 
 ## 🚀 Installation
