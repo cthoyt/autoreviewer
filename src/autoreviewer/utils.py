@@ -44,6 +44,7 @@ def github_api(
 
 @lru_cache
 def get_repo_metadata(repo) -> requests.Response:
+    """Get repository metadata."""
     return github_api(f"https://api.github.com/repos/{repo}")
 
 
@@ -53,6 +54,7 @@ ResTup = tuple[str, str] | tuple[None, None]
 def get_file(
     repo: str, name: str | list[str], *, branch: str = "main", desc: str | None = None
 ) -> ResTup:
+    """Get the file name and text, if available."""
     base_url = f"https://raw.githubusercontent.com/{repo}/{branch}"
     if isinstance(name, str):
         name = [name]
@@ -66,6 +68,7 @@ def get_file(
 
 @lru_cache
 def get_readme(repo: str, branch: str = "main") -> ResTup:
+    """Get the readme file name and text, if available."""
     return get_file(
         repo, branch=branch, name=["README.md", "README.rst", "README.txt"], desc="Finding README"
     )
@@ -73,6 +76,7 @@ def get_readme(repo: str, branch: str = "main") -> ResTup:
 
 @lru_cache
 def get_setup_config(repo: str, branch: str = "main") -> ResTup:
+    """Get the setup configuration file name and text, if available."""
     return get_file(
         repo,
         branch=branch,
@@ -83,21 +87,14 @@ def get_setup_config(repo: str, branch: str = "main") -> ResTup:
 
 @lru_cache
 def get_license_file(repo: str, branch: str = "main") -> ResTup:
+    """Get the license file name and text, if available."""
     return get_file(
         repo, branch=branch, name=["LICENSE", "LICENSE.md", "LICENSE.rst"], desc="Finding license"
     )
 
 
-def readme_has_zenodo(repo: str, branch: str = "main") -> str | None:
-    name, content = get_readme(repo=repo, branch=branch)
-    if name is None:
-        return None
-    if "https://zenodo.org/badge/" not in content:
-        return None
-    return "found"  # TODO parse file
-
-
-def get_repo_path(owner, repo) -> Path:
+def get_repo_path(owner: str, repo: str) -> Path:
+    """Clone a repository from GitHub locally inside the PyStow folder."""
     directory = pystow.join("github", owner, repo)
     if directory.is_dir():
         return directory
@@ -108,6 +105,7 @@ def get_repo_path(owner, repo) -> Path:
 
 
 def check_black(path: str | Path) -> bool:
+    """Check if the folder passes ``black --check``."""
     path = Path(path).resolve()
     try:
         subprocess.check_call(["black", path.as_posix(), "--check"])
@@ -117,7 +115,8 @@ def check_black(path: str | Path) -> bool:
         return True
 
 
-def remote_check(url) -> bool:
+def remote_check_black(url) -> bool:
+    """Check if the Git repository passes ``black --check``."""
     with tempfile.TemporaryDirectory() as directory:
         d = Path(directory)
         subprocess.check_call(["git", "clone", url, d.as_posix()])
@@ -125,14 +124,17 @@ def remote_check(url) -> bool:
 
 
 def remote_check_github(owner, repo) -> bool:
-    return remote_check(f"https://github.com/{owner}/{repo}")
+    """Check if the GitHub repository passes ``black --check``."""
+    return remote_check_black(f"https://github.com/{owner}/{repo}")
 
 
 def get_has_issues(owner: str, name: str) -> bool:
+    """Check if the GitHub repository has issues enabled."""
     res = get_repo_metadata(f"{owner}/{name}").json()
     return res["has_issues"]
 
 
 def get_default_branch(owner: str, name: str) -> str:
+    """Get the default branch for a GitHub repository."""
     res = get_repo_metadata(f"{owner}/{name}").json()
     return res["default_branch"]

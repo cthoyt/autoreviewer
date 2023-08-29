@@ -57,13 +57,26 @@ class Results:
 
     @property
     def repo(self) -> str:
+        """Get the full repo."""
         return f"{self.owner}/{self.name}"
 
     @property
     def passes(self) -> bool:
-        return False
+        """Return if all checks have passed."""
+        return all(
+            [
+                self.has_issues,
+                self.has_license,
+                self.has_readme,
+                self.has_zenodo,
+                self.has_setup,
+                self.has_installation_docs,
+                self.is_blackened,
+            ]
+        )
 
     def render(self) -> str:
+        """Render the template for GitHub issues."""
         return review_template.render(
             repo=self.repo,
             repo_url=f"https://github.com/{self.repo}",
@@ -82,15 +95,15 @@ class Results:
             issue=None,  # FIXME
         )
 
-    def print(self, file=None) -> None:
-        print(self.render(), file=file)
-
     def write_pandoc(self, path: str | Path) -> None:
+        """Write to a PDF with Pandoc."""
         path = Path(path).resolve()
         markdown_path = path.with_suffix(".md")
         markdown_path.write_text(self.render())
-        command = f"pandoc {markdown_path.as_posix()} -o {path.as_posix()} -V colorlinks=true -V linkcolor=blue -V urlcolor=blue -V toccolor=gray"
-        print(command)
+        command = (
+            f"pandoc {markdown_path.as_posix()} -o {path.as_posix()} -V colorlinks=true -V "
+            f"linkcolor=blue -V urlcolor=blue -V toccolor=gray"
+        )
         os.system(command)
 
 
@@ -108,8 +121,10 @@ def review(owner: str, name: str) -> Results:
         has_zenodo = False
         has_installation_docs = False
     elif readme_type == "markdown":
-        has_zenodo = "https://zenodo.org/badge/DOI/10.5281/" in readme_text
-        has_installation_docs = "# Installation" in readme_text
+        has_zenodo = (
+            readme_text is not None and "https://zenodo.org/badge/DOI/10.5281/" in readme_text
+        )
+        has_installation_docs = readme_text is not None and "# Installation" in readme_text
     elif readme_type == "rst":
         raise NotImplementedError(f"parser not written for {readme_name} extension")
     elif readme_type == "txt":
