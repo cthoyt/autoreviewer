@@ -71,14 +71,12 @@ $ autoreviewer https://github.com/rs-costa/sbml2hyb
 
 ## 🚀 Installation
 
-<!-- Uncomment this section after your first ``tox -e finish``
 The most recent release can be installed from
 [PyPI](https://pypi.org/project/autoreviewer/) with:
 
 ```bash
 $ pip install autoreviewer
 ```
--->
 
 The most recent code and data can be installed directly from GitHub with:
 
