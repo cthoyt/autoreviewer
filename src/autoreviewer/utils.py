@@ -54,7 +54,7 @@ def get_file(
         name = [name]
     for n in tqdm(name, leave=False, desc=desc):
         url = f"{base_url}/{n}"
-        res = requests.get(url, timeout=3)
+        res = requests.get(url, timeout=1) # timeout is short since these are small, simple files
         if res.status_code == 200:
             return n, res.text
     return None, None
