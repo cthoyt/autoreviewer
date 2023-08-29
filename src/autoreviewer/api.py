@@ -10,7 +10,13 @@ from pathlib import Path
 from jinja2 import Environment, FileSystemLoader
 from pystow.utils import get_commit
 
-from autoreviewer.utils import get_license_file, get_readme, get_setup_config, remote_check_github, get_has_issues
+from autoreviewer.utils import (
+    get_has_issues,
+    get_license_file,
+    get_readme,
+    get_setup_config,
+    remote_check_github,
+)
 
 HERE = Path(__file__).parent.resolve()
 TEMPLATES = HERE.joinpath("templates")
@@ -40,6 +46,7 @@ class Results:
     has_readme: bool
     has_zenodo: bool
     has_setup: bool
+    has_installation_docs: bool
     has_issues: bool
     is_blackened: bool
     commit: str
@@ -64,6 +71,7 @@ class Results:
             has_readme=self.has_readme,
             has_zenodo=self.has_zenodo,
             has_setup=self.has_setup,
+            has_installation_docs=self.has_installation_docs,
             readme_type=self.readme_type,
             has_issues=self.has_issues,
             date=self.date.strftime("%Y-%m-%d"),
@@ -96,12 +104,17 @@ def review(owner: str, name: str) -> Results:
     license_name, license_text = get_license_file(repo=repo, branch=branch)
     readme_name, readme_text = get_readme(repo=repo, branch=branch)
     readme_type = README_MAP[readme_name]
-    if readme_name is None:
+    if readme_type is None:
         has_zenodo = False
-    elif readme_name == "README.md":
-        has_zenodo = False  # FIXME implement parser
-    else:
+    elif readme_type == "markdown":
+        has_zenodo = "https://zenodo.org/badge/DOI/10.5281/" in readme_text
+        has_installation_docs = "# Installation" in readme_text
+    elif readme_type == "rst":
         raise NotImplementedError(f"parser not written for {readme_name} extension")
+    elif readme_type == "txt":
+        raise NotImplementedError(f"parser not written for {readme_name} extension")
+    else:
+        raise TypeError
 
     setup_name, setup_text = get_setup_config(repo=repo, branch=branch)
     has_setup = setup_name is not None
@@ -117,6 +130,7 @@ def review(owner: str, name: str) -> Results:
         has_license=license_text is not None,
         has_readme=readme_text is not None,
         readme_type=readme_type,
+        has_installation_docs=has_installation_docs,
         has_zenodo=has_zenodo,
         has_issues=has_issues,
         is_blackened=is_blackened,

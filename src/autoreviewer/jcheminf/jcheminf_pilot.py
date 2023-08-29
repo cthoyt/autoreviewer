@@ -23,10 +23,10 @@ from tqdm.contrib.concurrent import process_map
 from autoreviewer.utils import (
     MODULE,
     WIKIDATA_ENDPOINT,
-    strip,
-    get_setup_config,
     get_readme,
     get_repo_metadata,
+    get_setup_config,
+    strip,
 )
 
 HERE = Path(__file__).parent.resolve()

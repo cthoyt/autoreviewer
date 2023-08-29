@@ -63,7 +63,7 @@ explained [here](https://docs.github.com/en/get-started/writing-on-github/gettin
 
 ### Does the repository contain an associated public issue tracker?
 
-{% has_issues %}
+{% if has_issues %}
 Yes.
 {% else %}
 No, issues have been disabled in {{ repo_url }}. This is a profoundly un-scientific choice,
@@ -116,6 +116,20 @@ https://doi.org/10.5281/zenodo.XYZ
 {% endif %}
 
 ### Does the README contain installation documentation?
+
+{% if has_installation_docs %}
+Yes.
+{% elif not has_readme %}
+No, there is no README.
+{% elif readme_type == "markdown" %}
+No,
+
+This checks for the README.md containing a section header entitled `# Installation`
+(it's allowed to be any level deep). Please add a section that includes information
+on how the user should get the code (e.g., clone it from GitHub) and install it locally.
+Alternatively, you can deploy your code to the [Python Package Index (PyPI)](https://pypi.org/)
+and document how it can be installed with `pip install`.
+{% endif %}
 
 ### Is the code from the repository installable in a straight-forward manner?
 
