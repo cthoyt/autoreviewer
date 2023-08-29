@@ -111,6 +111,28 @@ https://doi.org/10.5281/zenodo.XYZ
 
 ### Is the code from the repository installable in a straight-forward manner?
 
+{% if has_setup %}
+Yes.
+{% else %}
+No packing setup configuration (e.g., `setup.py`, `setup.cfg`, `pyproject.toml`) was found.
+This likely means that the project can not be installed in a straightforward, reproducible way.
+
+Your code should be laid out in a standard structure and configured for installation. See the following
+resources:
+
+- https://packaging.python.org/en/latest/tutorials/packaging-projects/
+- https://blog.ionelmc.ro/2014/05/25/python-packaging
+- https://hynek.me/articles/testing-packaging/
+- https://cthoyt.com/2020/06/03/how-to-code-with-me-organization.html
+
+Note that the following do not qualify as straightforward and reproducible because their goals are to
+set up an environment in a certain way, and not to package code such that it can be distributed
+and reused.
+
+1. `requirements.txt`
+2. Conda/Anaconda environment configuration
+{% endif %}
+
 ### Does the code conform to an external linter (e.g., `black` for Python)?
 
 {% if is_blackened %}

@@ -64,14 +64,14 @@ def get_file(
 
 
 @lru_cache
-def get_setup_config(repo: str, branch: str = "main") -> ResTup:
+def get_readme(repo: str, branch: str = "main") -> ResTup:
     return get_file(
         repo, branch=branch, name=["README.md", "README.rst", "README.txt"], desc="Finding README"
     )
 
 
 @lru_cache
-def get_readme(repo: str, branch: str = "main") -> ResTup:
+def get_setup_config(repo: str, branch: str = "main") -> ResTup:
     return get_file(
         repo,
         branch=branch,

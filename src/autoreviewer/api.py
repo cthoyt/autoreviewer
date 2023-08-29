@@ -33,14 +33,19 @@ class Results:
     """
 
     owner: str
-    repository: str
+    name: str
     has_license: bool
     has_readme: bool
     has_zenodo: bool
+    has_setup: bool
     is_blackened: bool
     date: datetime.date = field(default_factory=datetime.date.today)
     readme_type: str | None = None
     branch: str = "main"
+
+    @property
+    def repo(self) -> str:
+        return f"{self.owner}/{self.name}"
 
     @property
     def passes(self) -> bool:
@@ -48,12 +53,13 @@ class Results:
 
     def render(self) -> str:
         return review_template.render(
-            repo=f"{self.owner}/{self.repository}",
-            repo_url=f"https://github.com/{self.owner}/{self.repository}",
+            repo=self.repo,
+            repo_url=f"https://github.com/{self.repo}",
             branch=self.branch,
             has_license=self.has_license,
             has_readme=self.has_readme,
             has_zenodo=self.has_zenodo,
+            has_setup=self.has_setup,
             readme_type=self.readme_type,
             date=self.date.strftime("%Y-%m-%d"),
             commit="12345678",  # FIXME
@@ -76,9 +82,9 @@ class Results:
 README_MAP = {"README.md": "markdown", "README.rst": "rst", "README": "txt", None: None}
 
 
-def review(owner: str, repository: str) -> Results:
+def review(owner: str, name: str) -> Results:
     """Review a repository."""
-    repo = f"{owner}/{repository}"
+    repo = f"{owner}/{name}"
     branch = "main"  # TODO get main branch from GitHub API
 
     # TODO get license type - later report on if is OSS appropriate
@@ -92,16 +98,20 @@ def review(owner: str, repository: str) -> Results:
     else:
         raise NotImplementedError(f"parser not written for {readme_name} extension")
 
-    is_blackened = remote_check_github(owner, repository)
+    setup_name, setup_text = get_setup_config(repo=repo, branch=branch)
+    has_setup = setup_name is not None
+
+    is_blackened = remote_check_github(owner, name)
 
     return Results(
         owner=owner,
-        repository=repository,
+        name=name,
         has_license=license_text is not None,
         has_readme=readme_text is not None,
         readme_type=readme_type,
         has_zenodo=has_zenodo,
         is_blackened=is_blackened,
+        has_setup=has_setup,
     )
 
 
