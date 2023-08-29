@@ -106,6 +106,7 @@ def review(owner: str, name: str) -> Results:
     readme_type = README_MAP[readme_name]
     if readme_type is None:
         has_zenodo = False
+        has_installation_docs = False
     elif readme_type == "markdown":
         has_zenodo = "https://zenodo.org/badge/DOI/10.5281/" in readme_text
         has_installation_docs = "# Installation" in readme_text
@@ -127,8 +128,8 @@ def review(owner: str, name: str) -> Results:
     return Results(
         owner=owner,
         name=name,
-        has_license=license_text is not None,
-        has_readme=readme_text is not None,
+        has_license=license_name is not None,
+        has_readme=readme_name is not None,
         readme_type=readme_type,
         has_installation_docs=has_installation_docs,
         has_zenodo=has_zenodo,
