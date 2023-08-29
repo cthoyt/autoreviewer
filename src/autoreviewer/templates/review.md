@@ -118,7 +118,11 @@ Yes.
 {% else %}
 No,
 
-The repository does not conform to an external linter. For example, [`black`](https://github.com/psf/black) 
+The repository does not conform to an external linter. This is important because there is a large
+cognitive burden for reading code that does not conform to community standards. Linters take care
+of formatting code to reduce burden on readers, therefore better communicating your work to readers.
+
+For example, [`black`](https://github.com/psf/black) 
 can be applied to auto-format Python code with the following:
 
 ```shell
