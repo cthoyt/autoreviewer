@@ -28,13 +28,15 @@ logger = logging.getLogger(__name__)
 
 
 @click.command()
-@click.argument("url")
+@click.argument("name_or_url")
 @click.option("--path")
-def main(url: str, path):
+def main(name_or_url: str, path):
     """CLI for autoreviewer."""
-    owner, repo, *_ = url.removeprefix("https://github.com/").split("/")
+    owner, repo, *_ = (
+        name_or_url.removeprefix("https://github.com/").removesuffix(".git").rstrip("/").split("/")
+    )
     results = review(owner, repo)
-    results.write(path or Path.cwd())
+    results.write_pandoc(path or Path.cwd().joinpath("review.pdf"))
 
 
 if __name__ == "__main__":
