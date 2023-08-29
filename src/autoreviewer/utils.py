@@ -1,5 +1,8 @@
 """Utilities."""
 
+import subprocess
+import tempfile
+from functools import lru_cache
 from pathlib import Path
 from typing import Any, Optional
 
@@ -7,9 +10,6 @@ import pystow
 import requests
 from ratelimit import rate_limited
 from tqdm import tqdm
-from functools import lru_cache
-import subprocess
-import tempfile
 
 #: Wikidata SPARQL endpoint. See https://www.wikidata.org/wiki/Wikidata:SPARQL_query_service#Interfacing
 WIKIDATA_ENDPOINT = "https://query.wikidata.org/bigdata/namespace/wdq/sparql"
@@ -96,6 +96,16 @@ def readme_has_zenodo(repo: str, branch: str = "main") -> str | None:
     return "found"  # TODO parse file
 
 
+def get_repo_path(owner, repo) -> Path:
+    directory = pystow.join("github", owner, repo)
+    if directory.is_dir():
+        return directory
+    directory.mkdir(parents=True)
+    url = f"https://github.com/{owner}/{repo}"
+    subprocess.check_call(["git", "clone", url, directory.as_posix()])
+    return directory
+
+
 def check_black(path: str | Path) -> bool:
     path = Path(path).resolve()
     try:
@@ -117,5 +127,11 @@ def remote_check_github(owner, repo) -> bool:
     return remote_check(f"https://github.com/{owner}/{repo}")
 
 
+def get_has_issues(owner: str, name: str) -> bool:
+    url = f"https://api.github.com/repos/{owner}/{name}"
+    res = requests.get(url).json()
+    return res["has_issues"]
+
+
 if __name__ == "__main__":
-    remote_check("https://github.com/jonghyunlee1993/DLM-DTI_hint-based-learning/")
+    print(github_api().json())

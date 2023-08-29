@@ -1,7 +1,7 @@
-# Reproducibility Review of [{{ repo }}]({{ repo_url }})
+# Reproducibility Review
 
-Below is applied the seven point reproducibility review prescribed by [Improving reproducibility and reusability in the
-Journal of Cheminformatics](https://doi.org/10.1186/s13321-023-00730-y) to the `{{ branch }}` branch of
+Below is a seven point reproducibility review prescribed by [Improving reproducibility and reusability in the
+Journal of Cheminformatics](https://doi.org/10.1186/s13321-023-00730-y) of the `{{ branch }}` branch of
 repository [{{ repo_url }}]({{ repo_url }}) (commit [`{{ commit }}`]({{ repo_url }}/commit/{{ commit }})),
 accessed on {{ date }}.
 
@@ -63,6 +63,14 @@ explained [here](https://docs.github.com/en/get-started/writing-on-github/gettin
 
 ### Does the repository contain an associated public issue tracker?
 
+{% has_issues %}
+Yes.
+{% else %}
+No, issues have been disabled in {{ repo_url }}. This is a profoundly un-scientific choice,
+as turning off the issue tracker on a repository signifies that the authors are uninterested
+or unwilling to discuss the work with readers or users who might have questions.
+{% endif %}
+
 ### Has the repository been externally archived on Zenodo, FigShare, or equivalent that is referenced in the README?
 
 {% if has_zenodo %}
@@ -116,9 +124,8 @@ Yes.
 {% else %}
 No packing setup configuration (e.g., `setup.py`, `setup.cfg`, `pyproject.toml`) was found.
 This likely means that the project can not be installed in a straightforward, reproducible way.
-
-Your code should be laid out in a standard structure and configured for installation. See the following
-resources:
+Your code should be laid out in a standard structure and configured for installation with one of these
+files. See the following resources:
 
 - https://packaging.python.org/en/latest/tutorials/packaging-projects/
 - https://blog.ionelmc.ro/2014/05/25/python-packaging
@@ -131,7 +138,7 @@ and reused.
 
 1. `requirements.txt`
 2. Conda/Anaconda environment configuration
-{% endif %}
+   {% endif %}
 
 ### Does the code conform to an external linter (e.g., `black` for Python)?
 
@@ -144,7 +151,7 @@ The repository does not conform to an external linter. This is important because
 cognitive burden for reading code that does not conform to community standards. Linters take care
 of formatting code to reduce burden on readers, therefore better communicating your work to readers.
 
-For example, [`black`](https://github.com/psf/black) 
+For example, [`black`](https://github.com/psf/black)
 can be applied to auto-format Python code with the following:
 
 ```shell
@@ -155,6 +162,7 @@ black .
 git commit -m "Blacken code"
 git push
 ```
+
 {% endif %}
 
 ## Summary
@@ -170,9 +178,11 @@ Scientific integrity depends on enabling others to understand the methodology (w
 the results generated from it. This reproducibility review reflects steps towards this goal that may be new for some
 researchers, but will ultimately raise standards across our community and lead to better science.
 
-Because the work presented in this article does not pass all seven criteria of the reproducibility review, I
-recommend rejecting the article and inviting later resubmission following addressing the points.
+{# Because the work presented in this article does not pass all seven criteria of the reproducibility review, I
+recommend rejecting the article and inviting later resubmission following addressing the points. #}
 
 {% endif %}
 
-For posterity, this review has also been included on {{ repo_url }}/issues/1.
+{% if issue is not none %}
+For posterity, this review has also been included on {{ repo_url }}/issues/{{ issue }}.
+{% endif %}

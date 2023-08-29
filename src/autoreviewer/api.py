@@ -2,13 +2,15 @@
 
 """Main code."""
 
+import datetime
+import os
 from dataclasses import dataclass, field
 from pathlib import Path
-import os
-import datetime
-from jinja2 import Environment, FileSystemLoader
 
-from autoreviewer.utils import get_readme, get_license_file, get_setup_config, remote_check_github
+from jinja2 import Environment, FileSystemLoader
+from pystow.utils import get_commit
+
+from autoreviewer.utils import get_license_file, get_readme, get_setup_config, remote_check_github, get_has_issues
 
 HERE = Path(__file__).parent.resolve()
 TEMPLATES = HERE.joinpath("templates")
@@ -38,7 +40,9 @@ class Results:
     has_readme: bool
     has_zenodo: bool
     has_setup: bool
+    has_issues: bool
     is_blackened: bool
+    commit: str
     date: datetime.date = field(default_factory=datetime.date.today)
     readme_type: str | None = None
     branch: str = "main"
@@ -61,10 +65,11 @@ class Results:
             has_zenodo=self.has_zenodo,
             has_setup=self.has_setup,
             readme_type=self.readme_type,
+            has_issues=self.has_issues,
             date=self.date.strftime("%Y-%m-%d"),
-            commit="12345678",  # FIXME
+            commit=self.commit,
             passes=self.passes,
-            issue=1,  #  FIXME
+            issue=None,  # FIXME
         )
 
     def print(self, file=None) -> None:
@@ -102,6 +107,9 @@ def review(owner: str, name: str) -> Results:
     has_setup = setup_name is not None
 
     is_blackened = remote_check_github(owner, name)
+    has_issues = get_has_issues(owner, name)
+
+    commit = get_commit(owner, name)
 
     return Results(
         owner=owner,
@@ -110,8 +118,10 @@ def review(owner: str, name: str) -> Results:
         has_readme=readme_text is not None,
         readme_type=readme_type,
         has_zenodo=has_zenodo,
+        has_issues=has_issues,
         is_blackened=is_blackened,
         has_setup=has_setup,
+        commit=commit,
     )
 
 
