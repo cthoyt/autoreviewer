@@ -113,6 +113,24 @@ https://doi.org/10.5281/zenodo.XYZ
 
 ### Does the code conform to an external linter (e.g., `black` for Python)?
 
+{% if is_blackened %}
+Yes.
+{% else %}
+No,
+
+The repository does not conform to an external linter. For example, [`black`](https://github.com/psf/black) 
+can be applied to auto-format Python code with the following:
+
+```shell
+git clone {{ repo_url }} tmp
+cd tmp
+python -m pip install black
+black .
+git commit -m "Blacken code"
+git push
+```
+{% endif %}
+
 ## Summary
 
 {% if passes %}

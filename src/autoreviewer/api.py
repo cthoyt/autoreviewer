@@ -8,7 +8,7 @@ import os
 import datetime
 from jinja2 import Environment, FileSystemLoader
 
-from autoreviewer.utils import get_readme, get_license_file, get_setup_config
+from autoreviewer.utils import get_readme, get_license_file, get_setup_config, remote_check_github
 
 HERE = Path(__file__).parent.resolve()
 TEMPLATES = HERE.joinpath("templates")
@@ -37,6 +37,7 @@ class Results:
     has_license: bool
     has_readme: bool
     has_zenodo: bool
+    is_blackened: bool
     date: datetime.date = field(default_factory=datetime.date.today)
     readme_type: str | None = None
     branch: str = "main"
@@ -57,7 +58,7 @@ class Results:
             date=self.date.strftime("%Y-%m-%d"),
             commit="12345678",  # FIXME
             passes=self.passes,
-            issue=1, #  FIXME
+            issue=1,  #  FIXME
         )
 
     def print(self, file=None) -> None:
@@ -91,6 +92,8 @@ def review(owner: str, repository: str) -> Results:
     else:
         raise NotImplementedError(f"parser not written for {readme_name} extension")
 
+    is_blackened = remote_check_github(owner, repository)
+
     return Results(
         owner=owner,
         repository=repository,
@@ -98,6 +101,7 @@ def review(owner: str, repository: str) -> Results:
         has_readme=readme_text is not None,
         readme_type=readme_type,
         has_zenodo=has_zenodo,
+        is_blackened=is_blackened,
     )
 
 

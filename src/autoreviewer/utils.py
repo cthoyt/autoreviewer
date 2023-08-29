@@ -1,5 +1,6 @@
 """Utilities."""
 
+from pathlib import Path
 from typing import Any, Optional
 
 import pystow
@@ -7,12 +8,14 @@ import requests
 from ratelimit import rate_limited
 from tqdm import tqdm
 from functools import lru_cache
+import subprocess
+import tempfile
 
 #: Wikidata SPARQL endpoint. See https://www.wikidata.org/wiki/Wikidata:SPARQL_query_service#Interfacing
 WIKIDATA_ENDPOINT = "https://query.wikidata.org/bigdata/namespace/wdq/sparql"
 
 # Load the GitHub access token via PyStow. We'll
-# need it so we don't hit the rate limit
+# need it, so we don't hit the rate limit
 TOKEN = pystow.get_config("github", "token", raise_on_missing=True)
 
 #: The module where JCheminf stuff goes
@@ -54,7 +57,7 @@ def get_file(
         name = [name]
     for n in tqdm(name, leave=False, desc=desc):
         url = f"{base_url}/{n}"
-        res = requests.get(url, timeout=1) # timeout is short since these are small, simple files
+        res = requests.get(url, timeout=1)  # timeout is short since these are small, simple files
         if res.status_code == 200:
             return n, res.text
     return None, None
@@ -91,3 +94,28 @@ def readme_has_zenodo(repo: str, branch: str = "main") -> str | None:
     if "https://zenodo.org/badge/" not in content:
         return None
     return "found"  # TODO parse file
+
+
+def check_black(path: str | Path) -> bool:
+    path = Path(path).resolve()
+    try:
+        subprocess.check_call(["black", path.as_posix(), "--check"])
+    except subprocess.CalledProcessError:
+        return False
+    else:
+        return True
+
+
+def remote_check(url) -> bool:
+    with tempfile.TemporaryDirectory() as directory:
+        d = Path(directory)
+        subprocess.check_call(["git", "clone", url, d.as_posix()])
+        return check_black(d)
+
+
+def remote_check_github(owner, repo) -> bool:
+    return remote_check(f"https://github.com/{owner}/{repo}")
+
+
+if __name__ == "__main__":
+    remote_check("https://github.com/jonghyunlee1993/DLM-DTI_hint-based-learning/")
