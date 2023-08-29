@@ -7,6 +7,7 @@ import os
 from dataclasses import dataclass, field
 from pathlib import Path
 
+import click
 from jinja2 import Environment, FileSystemLoader
 from pystow.utils import get_commit
 
@@ -100,10 +101,12 @@ class Results:
         path = Path(path).resolve()
         markdown_path = path.with_suffix(".md")
         markdown_path.write_text(self.render())
+        click.echo(f"Wrote review markdown to {markdown_path}")
         command = (
             f"pandoc {markdown_path.as_posix()} -o {path.as_posix()} -V colorlinks=true -V "
             f"linkcolor=blue -V urlcolor=blue -V toccolor=gray"
         )
+        click.echo(command)
         os.system(command)
 
 

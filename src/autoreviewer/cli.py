@@ -29,15 +29,20 @@ logger = logging.getLogger(__name__)
 
 @click.command()
 @click.argument("name_or_url")
-@click.option("--path")
-def main(name_or_url: str, path):
+@click.option("--path", type=click.Path())
+def main(name_or_url: str, path: Path | None):
     """CLI for autoreviewer."""
     owner, repo, *_ = (
         name_or_url.removeprefix("https://github.com/").removesuffix(".git").rstrip("/").split("/")
     )
     repo_clean = repo.lower().replace("_", "-")
     results = review(owner, repo)
-    results.write_pandoc(path or Path.cwd().joinpath(f"{repo_clean}-review.pdf"))
+    if path is not None:
+        results.write_pandoc(path)
+    else:
+        path = Path.cwd().joinpath(f"{repo_clean}-review.pdf")
+        results.write_pandoc(path)
+        click.echo(f"Wrote review PDF to {path}")
 
 
 if __name__ == "__main__":
