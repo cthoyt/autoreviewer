@@ -74,17 +74,12 @@ or unwilling to discuss the work with readers or users who might have questions.
 ### Has the repository been externally archived on Zenodo, FigShare, or equivalent that is referenced in the README?
 
 {% if has_zenodo %}
-
 Yes.
-
 {% elif not has_readme %}
-
 No,
 
 This repository does not have a README, and therefore it is not possible for a reader to tell if it is archived.
-
 {% else %}
-
 No,
 
 this repository has a README, but it does not reference Zenodo. If your Zenodo record iz `XYZ`, then you can use the
@@ -120,11 +115,14 @@ https://doi.org/10.5281/zenodo.XYZ
 {% if has_installation_docs %}
 Yes.
 {% elif not has_readme %}
-No, there is no README.
+No,
+
+This repository does not have a README, and therefore it is not possible for a reader to easily find installation
+documentation.
 {% elif readme_type == "markdown" %}
 No,
 
-This checks for the README.md containing a section header entitled `# Installation`
+This repository has a README.md, but it does not contain a section header entitled `# Installation`
 (it's allowed to be any level deep). Please add a section that includes information
 on how the user should get the code (e.g., clone it from GitHub) and install it locally.
 Alternatively, you can deploy your code to the [Python Package Index (PyPI)](https://pypi.org/)
@@ -136,7 +134,9 @@ and document how it can be installed with `pip install`.
 {% if has_setup %}
 Yes.
 {% else %}
-No packing setup configuration (e.g., `setup.py`, `setup.cfg`, `pyproject.toml`) was found.
+No,
+
+no packing setup configuration (e.g., `setup.py`, `setup.cfg`, `pyproject.toml`) was found.
 This likely means that the project can not be installed in a straightforward, reproducible way.
 Your code should be laid out in a standard structure and configured for installation with one of these
 files. See the following resources:
@@ -161,7 +161,7 @@ Yes.
 {% else %}
 No,
 
-The repository does not conform to an external linter. This is important because there is a large
+the repository does not conform to an external linter. This is important because there is a large
 cognitive burden for reading code that does not conform to community standards. Linters take care
 of formatting code to reduce burden on readers, therefore better communicating your work to readers.
 

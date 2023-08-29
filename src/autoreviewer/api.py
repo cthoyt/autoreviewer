@@ -11,6 +11,7 @@ from jinja2 import Environment, FileSystemLoader
 from pystow.utils import get_commit
 
 from autoreviewer.utils import (
+    get_default_branch,
     get_has_issues,
     get_license_file,
     get_readme,
@@ -98,10 +99,8 @@ README_MAP = {"README.md": "markdown", "README.rst": "rst", "README": "txt", Non
 def review(owner: str, name: str) -> Results:
     """Review a repository."""
     repo = f"{owner}/{name}"
-    branch = "main"  # TODO get main branch from GitHub API
+    branch = get_default_branch(owner, name)
 
-    # TODO get license type - later report on if is OSS appropriate
-    license_name, license_text = get_license_file(repo=repo, branch=branch)
     readme_name, readme_text = get_readme(repo=repo, branch=branch)
     readme_type = README_MAP[readme_name]
     if readme_type is None:
@@ -119,6 +118,9 @@ def review(owner: str, name: str) -> Results:
 
     setup_name, setup_text = get_setup_config(repo=repo, branch=branch)
     has_setup = setup_name is not None
+
+    # TODO get license type - later report on if is OSS appropriate
+    license_name, license_text = get_license_file(repo=repo, branch=branch)
 
     is_blackened = remote_check_github(owner, name)
     has_issues = get_has_issues(owner, name)
