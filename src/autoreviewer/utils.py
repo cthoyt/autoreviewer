@@ -1,11 +1,12 @@
 """Utilities."""
 
-import json
 from typing import Any, Optional
 
 import pystow
 import requests
 from ratelimit import rate_limited
+from tqdm import tqdm
+from functools import lru_cache
 
 #: Wikidata SPARQL endpoint. See https://www.wikidata.org/wiki/Wikidata:SPARQL_query_service#Interfacing
 WIKIDATA_ENDPOINT = "https://query.wikidata.org/bigdata/namespace/wdq/sparql"
@@ -38,40 +39,55 @@ def github_api(
     return requests.get(url, headers=headers, params=params)
 
 
-LINK_PREFIX = "https://jcheminf.biomedcentral.com/articles/10.1186/"
+def get_repo_metadata(repo) -> requests.Response:
+    return github_api(f"https://api.github.com/repos/{repo}")
 
 
-def _get_jcheminf_repositories_dict():
-    # NOTE: this is easily replaced with web scraping
-    path = MODULE.join(name="github-dois.json")
-    if path.is_file():
-        return json.loads(path.read_text())
-    rv = {}
-    for repo in _iter_jcheminf_repositories():
-        name = repo["full_name"]
-        description = repo.get("description")
-        if not description or LINK_PREFIX not in description:
-            continue
-        for part in description.split():
-            part = strip(part)
-            if part.startswith(LINK_PREFIX):
-                rv[name] = part.removeprefix(LINK_PREFIX)
-    path.write_text(json.dumps(rv, indent=2))
-    return rv
+ResTup = tuple[str, str] | tuple[None, None]
 
 
-def _iter_jcheminf_repositories(owner: str = "jcheminform", force: bool = False):
-    """List repositories."""
-    # NOTE: this is easily replaced with web scraping
-    # TODO make this more extensible later. this works b.c. there are less than 300
-    for page in range(1, 5):
-        path = MODULE.join("github-jcheminform", name=f"{page}.json")
-        if path.is_file() and not force:
-            yield from json.loads(path.read_text())
-        r = github_api(
-            f"https://api.github.com/orgs/{owner}/repos",
-            params={"per_page": 100, "page": page},
-            accept="application/vnd.github+json",
-        ).json()
-        path.write_text(json.dumps(r, indent=2))
-        yield from r
+def get_file(
+    repo: str, name: str | list[str], *, branch: str = "main", desc: str | None = None
+) -> ResTup:
+    base_url = f"https://raw.githubusercontent.com/{repo}/{branch}"
+    if isinstance(name, str):
+        name = [name]
+    for n in tqdm(name, leave=False, desc=desc):
+        url = f"{base_url}/{n}"
+        res = requests.get(url, timeout=3)
+        if res.status_code == 200:
+            return n, res.text
+    return None, None
+
+
+@lru_cache
+def get_setup_config(repo: str, branch: str = "main") -> ResTup:
+    return get_file(
+        repo, branch=branch, name=["README.md", "README.rst", "README.txt"], desc="Finding README"
+    )
+
+
+@lru_cache
+def get_readme(repo: str, branch: str = "main") -> ResTup:
+    return get_file(
+        repo,
+        branch=branch,
+        name=["setup.cfg", "setup.py", "pyproject.toml"],
+        desc="Finding setup conf.",
+    )
+
+
+@lru_cache
+def get_license_file(repo: str, branch: str = "main") -> ResTup:
+    return get_file(
+        repo, branch=branch, name=["LICENSE", "LICENSE.md", "LICENSE.rst"], desc="Finding license"
+    )
+
+
+def readme_has_zenodo(repo: str, branch: str = "main") -> str | None:
+    name, content = get_readme(repo=repo, branch=branch)
+    if name is None:
+        return None
+    if "https://zenodo.org/badge/" not in content:
+        return None
+    return "found"  # TODO parse file
