@@ -67,6 +67,8 @@ jobs:
       - name: Install dependencies
         run: pip install tox
       - name: Test with pytest and generate coverage file
+        env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run:
           tox -e py
       - name: Upload coverage report to codecov

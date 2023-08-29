@@ -20,7 +20,14 @@ from tabulate import tabulate
 from tqdm.auto import tqdm, trange
 from tqdm.contrib.concurrent import process_map
 
-from autoreviewer.utils import MODULE, WIKIDATA_ENDPOINT, github_api, strip
+from autoreviewer.utils import (
+    MODULE,
+    WIKIDATA_ENDPOINT,
+    get_readme,
+    get_repo_metadata,
+    get_setup_config,
+    strip,
+)
 
 HERE = Path(__file__).parent.resolve()
 DOI_TO_GITHUB_PATH = HERE.joinpath("doi_to_github.tsv")
@@ -255,7 +262,7 @@ def main():
             queue.append((path, repo))
 
     for path, repo in tqdm(queue, desc="Get repo metadata"):
-        res = github_api(f"https://api.github.com/repos/{repo}")
+        res = get_repo_metadata(repo)
         if res.status_code != 200:
             tqdm.write(f"Bad status for {repo}: {res.text}")
             continue
@@ -280,19 +287,8 @@ def main():
         if repo_license == "NOASSERTION":
             repo_license = "Other"
 
-        base_url = f"https://raw.githubusercontent.com/{repo}/main"
-        has_setup_config = any(
-            requests.get(f"{base_url}/{n}").status_code == 200
-            for n in tqdm(
-                ["setup.cfg", "setup.py", "pyproject.toml"],
-                desc="Checking setup metadata",
-                leave=False,
-            )
-        )
-
-        readme_url = f"{base_url}/README.md"
-        res = requests.get(readme_url)
-        has_readme = res.status_code == 200
+        has_setup_config = get_setup_config(repo) is not None
+        has_readme = get_readme(repo, branch="main") is not None
 
         new_rows[repo] = (
             is_fork,
