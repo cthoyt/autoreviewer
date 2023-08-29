@@ -2,7 +2,7 @@
 
 Below is a seven point reproducibility review prescribed by [Improving reproducibility and reusability in the
 Journal of Cheminformatics](https://doi.org/10.1186/s13321-023-00730-y) of the `{{ branch }}` branch of
-repository [{{ repo_url }}]({{ repo_url }}) (commit [`{{ commit }}`]({{ repo_url }}/commit/{{ commit }})),
+repository [{{ repo_url }}]({{ repo_url }}) (commit [`{{ commit[:8] }}`]({{ repo_url }}/commit/{{ commit }})),
 accessed on {{ date }}.
 
 ## Criteria
@@ -122,12 +122,29 @@ documentation.
 {% elif readme_type == "markdown" %}
 No,
 
-This repository has a README.md, but it does not contain a section header entitled `# Installation`
-(it's allowed to be any level deep). Please add a section that includes information
-on how the user should get the code (e.g., clone it from GitHub) and install it locally.
-Alternatively, you can deploy your code to the [Python Package Index (PyPI)](https://pypi.org/)
-and document how it can be installed with `pip install`.
+this repository has a README, but it does not contain a section header entitled `# Installation`
+(it's allowed to be any level deep).
+{% elif readme_type == "rst" %}
+No,
+
+this repository has a README, but it does not contain a section header entitled `Installation`
+(it's allowed to be any level deep).
 {% endif %}
+Please add a section that includes information
+on how the user should get the code (e.g., clone it from GitHub) and install it locally.  This might read like:
+
+```shell
+git clone {{ repo_url }}
+cd {{ name }}
+pip install --editable .
+```
+
+Alternatively, you can deploy your code to the [Python Package Index (PyPI)](https://pypi.org/)
+and document how it can be installed with `pip install`. This might read like:
+
+```shell
+pip install {{ name.lower().replace("-", "_") }}
+```
 
 ### Is the code from the repository installable in a straight-forward manner?
 

@@ -67,6 +67,7 @@ class Results:
         return review_template.render(
             repo=self.repo,
             repo_url=f"https://github.com/{self.repo}",
+            name=self.name,
             branch=self.branch,
             has_license=self.has_license,
             has_readme=self.has_readme,
