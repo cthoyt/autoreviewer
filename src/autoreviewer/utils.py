@@ -14,9 +14,6 @@ from tqdm import tqdm
 #: Wikidata SPARQL endpoint. See https://www.wikidata.org/wiki/Wikidata:SPARQL_query_service#Interfacing
 WIKIDATA_ENDPOINT = "https://query.wikidata.org/bigdata/namespace/wdq/sparql"
 
-# Load the GitHub access token via PyStow. We'll
-# need it, so we don't hit the rate limit
-TOKEN = pystow.get_config("github", "token", raise_on_missing=True)
 
 #: The module where JCheminf stuff goes
 MODULE = pystow.module("jcheminf")
@@ -31,11 +28,18 @@ def strip(s: str) -> str:
 
 @rate_limited(calls=5_000, period=60 * 60)
 def github_api(
-    url: str, accept: Optional[str] = None, params: Optional[dict[str, Any]] = None
+    url: str,
+    accept: Optional[str] = None,
+    params: Optional[dict[str, Any]] = None,
+    token: str | None = None,
 ) -> requests.Response:
     """Request an endpoint from the GitHub API."""
+    if token is None:
+        # Load the GitHub access token via PyStow. We'll
+        # need it, so we don't hit the rate limit
+        token = pystow.get_config("github", "token", raise_on_missing=True)
     headers = {
-        "Authorization": f"token {TOKEN}",
+        "Authorization": f"token {token}",
     }
     if accept:
         headers["Accept"] = accept
