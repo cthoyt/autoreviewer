@@ -42,6 +42,7 @@ def github_api(
     return requests.get(url, headers=headers, params=params)
 
 
+@lru_cache
 def get_repo_metadata(repo) -> requests.Response:
     return github_api(f"https://api.github.com/repos/{repo}")
 
@@ -128,16 +129,10 @@ def remote_check_github(owner, repo) -> bool:
 
 
 def get_has_issues(owner: str, name: str) -> bool:
-    url = f"https://api.github.com/repos/{owner}/{name}"
-    res = requests.get(url).json()
+    res = get_repo_metadata(f"{owner}/{name}").json()
     return res["has_issues"]
 
 
 def get_default_branch(owner: str, name: str) -> str:
-    url = f"https://api.github.com/repos/{owner}/{name}"
-    res = requests.get(url).json()
+    res = get_repo_metadata(f"{owner}/{name}").json()
     return res["default_branch"]
-
-
-if __name__ == "__main__":
-    print(github_api().json())

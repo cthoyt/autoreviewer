@@ -186,8 +186,8 @@ For example, [`black`](https://github.com/psf/black)
 can be applied to auto-format Python code with the following:
 
 ```shell
-git clone {{ repo_url }} tmp
-cd tmp
+git clone {{ repo_url }}
+cd {{ name }}
 python -m pip install black
 black .
 git commit -m "Blacken code"
@@ -209,8 +209,9 @@ Scientific integrity depends on enabling others to understand the methodology (w
 the results generated from it. This reproducibility review reflects steps towards this goal that may be new for some
 researchers, but will ultimately raise standards across our community and lead to better science.
 
-{# Because the work presented in this article does not pass all seven criteria of the reproducibility review, I
-recommend rejecting the article and inviting later resubmission following addressing the points. #}
+Because the repository does not pass all seven criteria of the reproducibility review, I
+recommend rejecting the associated article and inviting later resubmission after the criteria have all been
+satisfied.
 
 {% endif %}
 

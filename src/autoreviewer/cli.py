@@ -35,8 +35,9 @@ def main(name_or_url: str, path):
     owner, repo, *_ = (
         name_or_url.removeprefix("https://github.com/").removesuffix(".git").rstrip("/").split("/")
     )
+    repo_clean = repo.lower().replace("_", "-")
     results = review(owner, repo)
-    results.write_pandoc(path or Path.cwd().joinpath("review.pdf"))
+    results.write_pandoc(path or Path.cwd().joinpath(f"{repo_clean}-review.pdf"))
 
 
 if __name__ == "__main__":

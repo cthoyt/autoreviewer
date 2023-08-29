@@ -89,7 +89,7 @@ class Results:
         path = Path(path).resolve()
         markdown_path = path.with_suffix(".md")
         markdown_path.write_text(self.render())
-        command = f"pandoc {markdown_path.as_posix()} -o {path.as_posix()}"
+        command = f"pandoc {markdown_path.as_posix()} -o {path.as_posix()} -V colorlinks=true -V linkcolor=blue -V urlcolor=blue -V toccolor=gray"
         print(command)
         os.system(command)
 
