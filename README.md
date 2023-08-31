@@ -84,6 +84,9 @@ The most recent code and data can be installed directly from GitHub with:
 $ pip install git+https://github.com/cthoyt/autoreviewer.git
 ```
 
+You'll also need to make sure [`pandoc`](https://pandoc.org/) is installed.
+The best way to do this is `brew install pandoc` on macOS.
+
 ## 👐 Contributing
 
 Contributions, whether filing an issue, making a pull request, or forking, are appreciated. See
