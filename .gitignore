@@ -900,4 +900,6 @@ FodyWeavers.xsd
 
 scratch/
 src/autoreviewer/review.md
+*-review.md
+*-review.pdf
 src/autoreviewer/review.pdf
