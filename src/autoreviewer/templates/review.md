@@ -119,16 +119,21 @@ No,
 
 This repository does not have a README, and therefore it is not possible for a reader to easily find installation
 documentation.
-{% elif readme_type == "markdown" %}
+{% else %} 
+{% if readme_type == "markdown" %}
 No,
 
-this repository has a README, but it does not contain a section header entitled `# Installation`
+this repository has a markdown README, but it does not contain a section header entitled `# Installation`
 (it's allowed to be any level deep).
 {% elif readme_type == "rst" %}
 No,
 
-this repository has a README, but it does not contain a section header entitled `Installation`
+this repository has a RST README, but it does not contain a section header entitled `Installation`
 (it's allowed to be any level deep).
+{% else %}
+No,
+
+this repository has a text readme. Please change to a formatted README.
 {% endif %}
 Please add a section that includes information
 on how the user should get the code (e.g., clone it from GitHub) and install it locally.  This might read like:
@@ -138,6 +143,7 @@ git clone {{ repo_url }}
 cd {{ name }}
 pip install --editable .
 ```
+{% endif %}
 
 Alternatively, you can deploy your code to the [Python Package Index (PyPI)](https://pypi.org/)
 and document how it can be installed with `pip install`. This might read like:
@@ -150,6 +156,18 @@ pip install {{ name.lower().replace("-", "_") }}
 
 {% if has_setup %}
 Yes.
+
+#### Packaging Metadata
+
+{% if pyroma_score == 10 %}
+Your packaging has all required metadata based on `pyroma`.
+{% else %}
+`pyroma` rating: {{score}}/10
+
+{% for failure in pyroma_failures %}
+1. {{ failure }}
+{% endfor %}
+{% endif %}
 {% else %}
 No,
 
