@@ -29,7 +29,11 @@ logger = logging.getLogger(__name__)
 
 @click.command()
 @click.argument("name_or_url")
-@click.option("--path", type=click.Path())
+@click.option(
+    "--path",
+    type=click.Path(),
+    help="A custom path to the output file, otherwise outputs in the current directory",
+)
 def main(name_or_url: str, path: Path | None):
     """CLI for autoreviewer."""
     owner, repo, *_ = (

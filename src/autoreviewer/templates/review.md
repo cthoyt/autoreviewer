@@ -5,9 +5,19 @@ Journal of Cheminformatics](https://doi.org/10.1186/s13321-023-00730-y) of the `
 repository [{{ repo_url }}]({{ repo_url }}) (commit [`{{ commit[:8] }}`]({{ repo_url }}/commit/{{ commit }})),
 accessed on {{ date }}.
 
+This review was automatically generated with the following commands:
+
+```shell
+python -m pip install autoreviewer
+python -m autoreviewer {{ repo }}
+```
+
+Please leave any feedback about the completeness and/or correctness of this review on the issue tracker for
+[cthoyt/autoreviewer](https://github.com/cthoyt/autoreviewer).
+
 ## Criteria
 
-### Does the repository contain a LICENSE file in its root?
+### 1. Does the repository contain a LICENSE file in its root?
 
 {% if has_license %}
 
@@ -34,7 +44,7 @@ found [here](https://docs.github.com/en/repositories/managing-your-repositorys-s
 
 {% endif %}
 
-### Does the repository contain a README file in its root?
+### 2. Does the repository contain a README file in its root?
 
 {% if has_readme %}
 
@@ -61,7 +71,7 @@ explained [here](https://docs.github.com/en/get-started/writing-on-github/gettin
 
 {% endif %}
 
-### Does the repository contain an associated public issue tracker?
+### 3. Does the repository contain an associated public issue tracker?
 
 {% if has_issues %}
 Yes.
@@ -71,7 +81,7 @@ as turning off the issue tracker on a repository signifies that the authors are 
 or unwilling to discuss the work with readers or users who might have questions.
 {% endif %}
 
-### Has the repository been externally archived on Zenodo, FigShare, or equivalent that is referenced in the README?
+### 4. Has the repository been externally archived on Zenodo, FigShare, or equivalent that is referenced in the README?
 
 {% if has_zenodo %}
 Yes.
@@ -82,8 +92,10 @@ This repository does not have a README, and therefore it is not possible for a r
 {% else %}
 No,
 
-this repository has a README, but it does not reference Zenodo. If your Zenodo record iz `XYZ`, then you can use the
-following in your README:
+this repository has a README, but it does not reference Zenodo. The GitHub-Zenodo integration can be
+set up by following [this tutorial](https://docs.github.com/en/repositories/archiving-a-github-repository/referencing-and-citing-content).
+
+If your Zenodo record is `XYZ`, then you can use the following in your README:
 
 {% if readme_type == "markdown" %}
 
@@ -99,7 +111,7 @@ following in your README:
 ```
 
 {% else %}
-Ideally, you switch your README.md to use either Markdown or Restructured Text. If this is not possible,
+Ideally, you switch your README.md to use either Markdown or ReStructured Text. If this is not possible,
 link to the Zenodo record:
 
 ```
@@ -110,7 +122,7 @@ https://doi.org/10.5281/zenodo.XYZ
 
 {% endif %}
 
-### Does the README contain installation documentation?
+### 5. Does the README contain installation documentation?
 
 {% if has_installation_docs %}
 Yes.
@@ -143,7 +155,6 @@ git clone {{ repo_url }}
 cd {{ name }}
 pip install --editable .
 ```
-{% endif %}
 
 Alternatively, you can deploy your code to the [Python Package Index (PyPI)](https://pypi.org/)
 and document how it can be installed with `pip install`. This might read like:
@@ -152,7 +163,9 @@ and document how it can be installed with `pip install`. This might read like:
 pip install {{ name.lower().replace("-", "_") }}
 ```
 
-### Is the code from the repository installable in a straight-forward manner?
+{% endif %}
+
+### 6. Is the code from the repository installable in a straight-forward manner?
 
 {% if has_setup %}
 Yes.
@@ -160,13 +173,23 @@ Yes.
 #### Packaging Metadata
 
 {% if pyroma_score == 10 %}
-Your packaging has all required metadata based on `pyroma`.
+Your packaging has all required metadata based on [`pyroma`](https://github.com/regebro/pyroma).
 {% else %}
-`pyroma` rating: {{score}}/10
+[`pyroma`](https://github.com/regebro/pyroma) rating: {{ pyroma_score }}/10
 
 {% for failure in pyroma_failures %}
 1. {{ failure }}
 {% endfor %}
+
+These results can be regenerated locally using the following shell commands:
+
+```shell
+git clone {{ repo_url }}
+cd {{ name }}
+python -m pip install pyroma
+pyroma .
+```
+
 {% endif %}
 {% else %}
 No,
@@ -187,9 +210,10 @@ and reused.
 
 1. `requirements.txt`
 2. Conda/Anaconda environment configuration
-   {% endif %}
 
-### Does the code conform to an external linter (e.g., `black` for Python)?
+{% endif %}
+
+### 7. Does the code conform to an external linter (e.g., `black` for Python)?
 
 {% if is_blackened %}
 Yes.
