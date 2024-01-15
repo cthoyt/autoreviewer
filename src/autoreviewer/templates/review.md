@@ -5,19 +5,7 @@ Journal of Cheminformatics](https://doi.org/10.1186/s13321-023-00730-y) of the `
 repository [{{ repo_url }}]({{ repo_url }}) (commit [`{{ commit[:8] }}`]({{ repo_url }}/commit/{{ commit }})),
 accessed on {{ date }}.
 
-This review was automatically generated with the following commands:
-
-```shell
-python -m pip install autoreviewer
-python -m autoreviewer {{ repo }}
-```
-
-Please leave any feedback about the completeness and/or correctness of this review on the issue tracker for
-[cthoyt/autoreviewer](https://github.com/cthoyt/autoreviewer).
-
-## Criteria
-
-### 1. Does the repository contain a LICENSE file in its root?
+## 1. Does the repository contain a LICENSE file in its root?
 
 {% if license_name is none %}
 
@@ -50,7 +38,7 @@ found [here](https://docs.github.com/en/repositories/managing-your-repositorys-s
 
 {% endif %}
 
-### 2. Does the repository contain a README file in its root?
+## 2. Does the repository contain a README file in its root?
 
 {% if has_readme %}
 
@@ -75,7 +63,7 @@ explained [here](https://docs.github.com/en/get-started/writing-on-github/gettin
 
 {% endif %}
 
-### 3. Does the repository contain an associated public issue tracker?
+## 3. Does the repository contain an associated public issue tracker?
 
 {% if has_issues %}
 Yes.
@@ -85,7 +73,7 @@ as turning off the issue tracker on a repository signifies that the authors are 
 or unwilling to discuss the work with readers or users who might have questions.
 {% endif %}
 
-### 4. Has the repository been externally archived on Zenodo, FigShare, or equivalent that is referenced in the README?
+## 4. Has the repository been externally archived on Zenodo, FigShare, or equivalent that is referenced in the README?
 
 {% if has_zenodo %}
 Yes.
@@ -122,7 +110,7 @@ https://doi.org/10.5281/zenodo.XYZ
 
 {% endif %}
 
-### 5. Does the README contain installation documentation?
+## 5. Does the README contain installation documentation?
 
 {% if has_installation_docs %}
 Yes.
@@ -157,12 +145,12 @@ pip install {{ name.lower().replace("-", "_") }}
 
 {% endif %}
 
-### 6. Is the code from the repository installable in a straight-forward manner?
+## 6. Is the code from the repository installable in a straight-forward manner?
 
 {% if has_setup %}
 Yes.
 
-#### Packaging Metadata
+### Packaging Metadata
 
 {% if pyroma_score == 10 %}
 Your packaging has all required metadata based on [`pyroma`](https://github.com/regebro/pyroma).
@@ -204,7 +192,7 @@ and reused.
 
 {% if root_scripts %}
 
-#### Root Scripts
+### Root Scripts
 
 The repository contains the following scripts in the root directory:
 
@@ -235,7 +223,7 @@ Another possibility is to put these Python scripts in the root of the package
 {% endif %}
 {% endif %}
 
-### 7. Does the code conform to an external linter (e.g., `black` for Python)?
+## 7. Does the code conform to an external linter (e.g., `black` for Python)?
 
 {% if is_blackened %}
 Yes.
@@ -258,7 +246,7 @@ git push
 
 {% endif %}
 
-## Summary
+# Summary
 
 {% if passes %}
 
@@ -280,3 +268,15 @@ satisfied.
 {% if issue is not none %}
 For posterity, this review has also been included on {{ repo_url }}/issues/{{ issue }}.
 {% endif %}
+
+# Colophon
+
+This review was automatically generated with the following commands:
+
+```shell
+python -m pip install autoreviewer
+python -m autoreviewer {{ repo }}
+```
+
+Please leave any feedback about the completeness and/or correctness of this review on the issue tracker for
+[cthoyt/autoreviewer](https://github.com/cthoyt/autoreviewer).
