@@ -18,7 +18,6 @@ from tqdm.contrib.logging import logging_redirect_tqdm
 #: Wikidata SPARQL endpoint. See https://www.wikidata.org/wiki/Wikidata:SPARQL_query_service#Interfacing
 WIKIDATA_ENDPOINT = "https://query.wikidata.org/bigdata/namespace/wdq/sparql"
 
-
 #: The module where JCheminf stuff goes
 MODULE = pystow.module("jcheminf")
 
@@ -206,3 +205,11 @@ def remote_check_pyroma(owner: str, name: str) -> tuple[int, list[str]]:
     if directory is None:
         return 0, []
     return check_pyroma(directory)
+
+
+def check_no_scripts(owner: str, name: str) -> list[str]:
+    """Get scripts sitting in the home directory."""
+    directory = get_repo_path(owner, name)
+    scripts = directory.glob("*.py")
+    skips = {"setup.py"}
+    return [s.stem for s in scripts if s not in skips]

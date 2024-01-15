@@ -19,15 +19,9 @@ Please leave any feedback about the completeness and/or correctness of this revi
 
 ### 1. Does the repository contain a LICENSE file in its root?
 
-{% if has_license %}
+{% if license_name is none %}
 
-Yes.
-
-{% else %}
-
-No,
-
-the GitHub license picker can be used to facilitate adding one by following this
+No, the GitHub license picker can be used to facilitate adding one by following this
 link: [{{ repo_url }}/community/license/new?branch={{ branch }}]({{ repo_url }}/community/license/new?branch={{
 branch }}).
 
@@ -42,6 +36,18 @@ at [https://choosealicense.com](https://choosealicense.com).
 More information about how GitHub detects licenses can be
 found [here](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/licensing-a-repository).
 
+{% elif license_name != "Unknown" %}
+
+Yes, {{ license_name }}.
+
+{% else %}
+
+Yes, **but**, it is not a standard license that GitHub can automatically recognize, meaning that it increases
+the cognitive burden on potential users for the terms of use.
+
+More information about how GitHub detects licenses can be
+found [here](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/licensing-a-repository).
+
 {% endif %}
 
 ### 2. Does the repository contain a README file in its root?
@@ -52,9 +58,7 @@ Yes.
 
 {% else %}
 
-No,
-
-a minimal viable README file contains:
+No, a minimal viable README file contains:
 
 - A short, one line description of the project
 - Information on how to download, install, and run the code locally
@@ -86,13 +90,9 @@ or unwilling to discuss the work with readers or users who might have questions.
 {% if has_zenodo %}
 Yes.
 {% elif not has_readme %}
-No,
-
-This repository does not have a README, and therefore it is not possible for a reader to tell if it is archived.
+No,  this repository does not have a README, and therefore it is not possible for a reader to tell if it is archived.
 {% else %}
-No,
-
-this repository has a README, but it does not reference Zenodo. The GitHub-Zenodo integration can be
+No, this repository has a README, but it does not reference Zenodo. The GitHub-Zenodo integration can be
 set up by following [this tutorial](https://docs.github.com/en/repositories/archiving-a-github-repository/referencing-and-citing-content).
 
 If your Zenodo record is `XYZ`, then you can use the following in your README:
@@ -127,25 +127,17 @@ https://doi.org/10.5281/zenodo.XYZ
 {% if has_installation_docs %}
 Yes.
 {% elif not has_readme %}
-No,
-
-This repository does not have a README, and therefore it is not possible for a reader to easily find installation
+No, this repository does not have a README, and therefore it is not possible for a reader to easily find installation
 documentation.
 {% else %} 
 {% if readme_type == "markdown" %}
-No,
-
-this repository has a markdown README, but it does not contain a section header entitled `# Installation`
+No, this repository has a markdown README, but it does not contain a section header entitled `# Installation`
 (it's allowed to be any level deep).
 {% elif readme_type == "rst" %}
-No,
-
-this repository has a RST README, but it does not contain a section header entitled `Installation`
+No, this repository has a RST README, but it does not contain a section header entitled `Installation`
 (it's allowed to be any level deep).
 {% else %}
-No,
-
-this repository has a text readme. Please change to a formatted README.
+No, this repository has a text readme. Please change to a formatted README.
 {% endif %}
 Please add a section that includes information
 on how the user should get the code (e.g., clone it from GitHub) and install it locally.  This might read like:
@@ -192,9 +184,7 @@ pyroma .
 
 {% endif %}
 {% else %}
-No,
-
-no packing setup configuration (e.g., `setup.py`, `setup.cfg`, `pyproject.toml`) was found.
+No, no packing setup configuration (e.g., `setup.py`, `setup.cfg`, `pyproject.toml`) was found.
 This likely means that the project can not be installed in a straightforward, reproducible way.
 Your code should be laid out in a standard structure and configured for installation with one of these
 files. See the following resources:
@@ -209,8 +199,40 @@ set up an environment in a certain way, and not to package code such that it can
 and reused.
 
 1. `requirements.txt`
-2. Conda/Anaconda environment configuration
+2. `Pipfile.lock`
+3. Conda/Anaconda environment configuration
 
+{% if root_scripts %}
+
+#### Root Scripts
+
+The repository contains the following scripts in the root directory:
+
+{% for root_script in root_scripts %}
+- `{{ root_script }}.py`
+{% endfor %}
+
+This is bad because these scripts are not packaged. This means that users will have to manually clone
+and set up the code from version control, and will be forced to run it based on where the code lives on
+the local file system. These all encumber easy reproducibility.
+
+{% if has_setup %}Instead,{% else %}After properly packaging this code,{% endif %}
+they should be included inside the package and run with `python -m {{ name }}.<your submodule>`
+(see [here](https://docs.python.org/3/using/cmdline.html#cmdoption-m)). One way to organize these
+scripts is to put them inside a `cli` submodule, such that they can be run like this:
+
+{% for root_script in root_scripts %}
+- `python -m {{ name }}.cli.{{ root_script }}`
+{% endfor %}
+
+Another possibility is to put these Python scripts in the root of the package
+(not to be confused with the root of the repository) such that they can be run like:
+
+{% for root_script in root_scripts %}
+- `python -m {{ name }}.{{ root_script }}`
+{% endfor %}
+
+{% endif %}
 {% endif %}
 
 ### 7. Does the code conform to an external linter (e.g., `black` for Python)?
@@ -218,9 +240,7 @@ and reused.
 {% if is_blackened %}
 Yes.
 {% else %}
-No,
-
-the repository does not conform to an external linter. This is important because there is a large
+No, the repository does not conform to an external linter. This is important because there is a large
 cognitive burden for reading code that does not conform to community standards. Linters take care
 of formatting code to reduce burden on readers, therefore better communicating your work to readers.
 

@@ -14,6 +14,7 @@ from pystow.utils import get_commit
 from tqdm import tqdm
 
 from autoreviewer.utils import (
+    check_no_scripts,
     get_default_branch,
     get_has_issues,
     get_is_fork,
@@ -61,6 +62,8 @@ class Results:
     pyroma_failures: list[str]
     commit: str
     branch: str
+    root_scripts: list[str]
+
     date: datetime.date = field(default_factory=datetime.date.today)
     readme_type: str | None = None
 
@@ -118,10 +121,11 @@ class Results:
             repo_url=f"https://github.com/{self.repo}",
             name=self.name,
             branch=self.branch,
-            has_license=self.has_license,
+            license_name=self.license_name,
             has_readme=self.has_readme,
             has_zenodo=self.has_zenodo,
             has_setup=self.has_setup,
+            root_scripts=self.root_scripts,
             has_installation_docs=self.has_installation_docs,
             readme_type=self.readme_type,
             has_issues=self.has_issues,
@@ -141,7 +145,7 @@ class Results:
         click.echo(f"Wrote review markdown to {markdown_path}")
         command = (
             f"pandoc {markdown_path.as_posix()} -o {path.as_posix()} -V colorlinks=true -V "
-            f"linkcolor=blue -V urlcolor=blue -V toccolor=gray"
+            "linkcolor=blue -V urlcolor=blue -V toccolor=gray"
         )
         click.echo(command)
         os.system(command)
@@ -188,6 +192,8 @@ def review(owner: str, name: str) -> Results:
     is_fork = get_is_fork(owner, name)
     commit = get_commit(owner, name)
 
+    root_scripts = check_no_scripts(owner, name)
+
     return Results(
         owner=owner,
         name=name,
@@ -202,6 +208,7 @@ def review(owner: str, name: str) -> Results:
         pyroma_score=pyroma_score,
         pyroma_failures=pyroma_failures,
         has_setup=has_setup,
+        root_scripts=root_scripts,
         commit=commit,
         branch=branch,
     )
