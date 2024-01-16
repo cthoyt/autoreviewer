@@ -212,6 +212,8 @@ def remote_check_pyroma(owner: str, name: str) -> tuple[int, list[str]]:
 def check_no_scripts(owner: str, name: str) -> list[str]:
     """Get scripts sitting in the home directory."""
     directory = get_repo_path(owner, name)
+    if directory is None:
+        return []
     scripts = directory.glob("*.py")
     skips = {"setup.py"}
     return [s.stem for s in scripts if s.name not in skips]
