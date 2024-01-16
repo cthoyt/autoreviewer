@@ -170,9 +170,10 @@ SKIP_REPOS = {
 
 
 @click.command()
-def main() -> None:
+@click.option("--reindex", is_flag=True, help="If true, reindex papers")
+def main(reindex: bool) -> None:
     """Run the analysis."""
-    if DOI_TO_GITHUB_PATH.is_file():
+    if DOI_TO_GITHUB_PATH.is_file() and not reindex:
         df = pd.read_csv(DOI_TO_GITHUB_PATH, sep="\t")
     else:
         with logging_redirect_tqdm():
