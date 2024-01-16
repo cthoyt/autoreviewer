@@ -69,6 +69,15 @@ Run on the command line with:
 $ autoreviewer https://github.com/rs-costa/sbml2hyb
 ```
 
+## J. Chem. Inf. Analysis
+
+![](src/autoreviewer/jcheminf/jcheminf_summary.png)
+
+There's a submodule `autoreviewer.jcheminf` that has utilities for scraping the paper list
+from the Journal of Cheminformatics, getting their ePub files,
+extracting GitHub references from the availability statements, running autoreview on each,
+then making the following summary with `python -m autoreviewer.jcheminf`.
+
 ## 🚀 Installation
 
 The most recent release can be installed from

@@ -2,6 +2,7 @@
 
 """Main code."""
 
+import dataclasses
 import datetime
 import os
 from dataclasses import dataclass, field
@@ -10,14 +11,19 @@ from pathlib import Path
 import click
 from jinja2 import Environment, FileSystemLoader
 from pystow.utils import get_commit
+from tqdm import tqdm
 
 from autoreviewer.utils import (
+    check_no_scripts,
     get_default_branch,
     get_has_issues,
-    get_license_file,
+    get_is_fork,
+    get_license,
+    get_programming_language,
     get_readme,
     get_setup_config,
-    remote_check_github,
+    remote_check_black_github,
+    remote_check_pyroma,
 )
 
 HERE = Path(__file__).parent.resolve()
@@ -44,22 +50,54 @@ class Results:
 
     owner: str
     name: str
-    has_license: bool
-    has_readme: bool
+    language: str
+    license_name: str | None
     has_zenodo: bool
     has_setup: bool
     has_installation_docs: bool
     has_issues: bool
+    is_fork: bool
     is_blackened: bool
+    pyroma_score: int
+    pyroma_failures: list[str]
     commit: str
+    branch: str
+    root_scripts: list[str]
+
     date: datetime.date = field(default_factory=datetime.date.today)
     readme_type: str | None = None
-    branch: str = "main"
+
+    def get_dict(self):
+        """Get this review as a dict."""
+        d = dataclasses.asdict(self)
+        d["repo"] = self.repo_url
+        d["license"] = d.pop("license_name")
+        d["commit"] = d.pop("commit")[:8]
+        del d["owner"]
+        del d["name"]
+        del d["pyroma_failures"]
+        del d["date"]
+        return d
+
+    @property
+    def has_readme(self) -> bool:
+        """Get if there is a README."""
+        return self.readme_type is not None
 
     @property
     def repo(self) -> str:
         """Get the full repo."""
         return f"{self.owner}/{self.name}"
+
+    @property
+    def repo_url(self) -> str:
+        """Get the repo URL."""
+        return f"https://github.com/{self.repo}"
+
+    @property
+    def has_license(self) -> bool:
+        """Get if the license exists."""
+        return self.license_name is not None
 
     @property
     def passes(self) -> bool:
@@ -83,13 +121,16 @@ class Results:
             repo_url=f"https://github.com/{self.repo}",
             name=self.name,
             branch=self.branch,
-            has_license=self.has_license,
+            license_name=self.license_name,
             has_readme=self.has_readme,
             has_zenodo=self.has_zenodo,
             has_setup=self.has_setup,
+            root_scripts=self.root_scripts,
             has_installation_docs=self.has_installation_docs,
             readme_type=self.readme_type,
             has_issues=self.has_issues,
+            pyroma_score=self.pyroma_score,
+            pyroma_failures=self.pyroma_failures,
             date=self.date.strftime("%Y-%m-%d"),
             commit=self.commit,
             passes=self.passes,
@@ -104,19 +145,20 @@ class Results:
         click.echo(f"Wrote review markdown to {markdown_path}")
         command = (
             f"pandoc {markdown_path.as_posix()} -o {path.as_posix()} -V colorlinks=true -V "
-            f"linkcolor=blue -V urlcolor=blue -V toccolor=gray"
+            "linkcolor=blue -V urlcolor=blue -V toccolor=gray"
         )
         click.echo(command)
         os.system(command)
 
 
-README_MAP = {"README.md": "markdown", "README.rst": "rst", "README": "txt", None: None}
+README_MAP = {"README.md": "markdown", "README.rst": "rst", "README.txt": "txt", None: None}
 
 
 def review(owner: str, name: str) -> Results:
     """Review a repository."""
     repo = f"{owner}/{name}"
     branch = get_default_branch(owner, name)
+    is_blackened = remote_check_black_github(owner, name)
 
     readme_name, readme_text = get_readme(repo=repo, branch=branch)
     readme_type = README_MAP[readme_name]
@@ -129,35 +171,46 @@ def review(owner: str, name: str) -> Results:
         )
         has_installation_docs = readme_text is not None and "# Installation" in readme_text
     elif readme_type == "rst":
-        raise NotImplementedError(f"parser not written for {readme_name} extension")
+        has_zenodo = False
+        has_installation_docs = False
+        tqdm.write(f"README was RST, assuming missing zenodo/installation docs: {repo}")
     elif readme_type == "txt":
-        raise NotImplementedError(f"parser not written for {readme_name} extension")
+        has_zenodo = False
+        has_installation_docs = False
+        tqdm.write(f"README was TXT, assuming missing zenodo/installation docs: {repo}")
     else:
         raise TypeError
 
     setup_name, setup_text = get_setup_config(repo=repo, branch=branch)
     has_setup = setup_name is not None
 
-    # TODO get license type - later report on if is OSS appropriate
-    license_name, license_text = get_license_file(repo=repo, branch=branch)
+    license_name = get_license(owner, name)
 
-    is_blackened = remote_check_github(owner, name)
+    pyroma_score, pyroma_failures = remote_check_pyroma(owner, name)
     has_issues = get_has_issues(owner, name)
-
+    language = get_programming_language(owner, name)
+    is_fork = get_is_fork(owner, name)
     commit = get_commit(owner, name)
+
+    root_scripts = check_no_scripts(owner, name)
 
     return Results(
         owner=owner,
         name=name,
-        has_license=license_name is not None,
-        has_readme=readme_name is not None,
+        language=language,
+        license_name=license_name,
         readme_type=readme_type,
         has_installation_docs=has_installation_docs,
         has_zenodo=has_zenodo,
         has_issues=has_issues,
+        is_fork=is_fork,
         is_blackened=is_blackened,
+        pyroma_score=pyroma_score,
+        pyroma_failures=pyroma_failures,
         has_setup=has_setup,
+        root_scripts=root_scripts,
         commit=commit,
+        branch=branch,
     )
 
 

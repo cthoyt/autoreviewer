@@ -5,19 +5,11 @@ Journal of Cheminformatics](https://doi.org/10.1186/s13321-023-00730-y) of the `
 repository [{{ repo_url }}]({{ repo_url }}) (commit [`{{ commit[:8] }}`]({{ repo_url }}/commit/{{ commit }})),
 accessed on {{ date }}.
 
-## Criteria
+## 1. Does the repository contain a LICENSE file in its root?
 
-### Does the repository contain a LICENSE file in its root?
+{% if license_name is none %}
 
-{% if has_license %}
-
-Yes.
-
-{% else %}
-
-No,
-
-the GitHub license picker can be used to facilitate adding one by following this
+No, the GitHub license picker can be used to facilitate adding one by following this
 link: [{{ repo_url }}/community/license/new?branch={{ branch }}]({{ repo_url }}/community/license/new?branch={{
 branch }}).
 
@@ -32,9 +24,21 @@ at [https://choosealicense.com](https://choosealicense.com).
 More information about how GitHub detects licenses can be
 found [here](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/licensing-a-repository).
 
+{% elif license_name != "Unknown" %}
+
+Yes, {{ license_name }}.
+
+{% else %}
+
+Yes, **but**, it is not a standard license that GitHub can automatically recognize, meaning that it increases
+the cognitive burden on potential users for the terms of use.
+
+More information about how GitHub detects licenses can be
+found [here](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/licensing-a-repository).
+
 {% endif %}
 
-### Does the repository contain a README file in its root?
+## 2. Does the repository contain a README file in its root?
 
 {% if has_readme %}
 
@@ -42,9 +46,7 @@ Yes.
 
 {% else %}
 
-No,
-
-a minimal viable README file contains:
+No, a minimal viable README file contains:
 
 - A short, one line description of the project
 - Information on how to download, install, and run the code locally
@@ -61,7 +63,7 @@ explained [here](https://docs.github.com/en/get-started/writing-on-github/gettin
 
 {% endif %}
 
-### Does the repository contain an associated public issue tracker?
+## 3. Does the repository contain an associated public issue tracker?
 
 {% if has_issues %}
 Yes.
@@ -71,19 +73,17 @@ as turning off the issue tracker on a repository signifies that the authors are 
 or unwilling to discuss the work with readers or users who might have questions.
 {% endif %}
 
-### Has the repository been externally archived on Zenodo, FigShare, or equivalent that is referenced in the README?
+## 4. Has the repository been externally archived on Zenodo, FigShare, or equivalent that is referenced in the README?
 
 {% if has_zenodo %}
 Yes.
 {% elif not has_readme %}
-No,
-
-This repository does not have a README, and therefore it is not possible for a reader to tell if it is archived.
+No,  this repository does not have a README, and therefore it is not possible for a reader to tell if it is archived.
 {% else %}
-No,
+No, this repository has a README, but it does not reference Zenodo. The GitHub-Zenodo integration can be
+set up by following [this tutorial](https://docs.github.com/en/repositories/archiving-a-github-repository/referencing-and-citing-content).
 
-this repository has a README, but it does not reference Zenodo. If your Zenodo record iz `XYZ`, then you can use the
-following in your README:
+If your Zenodo record is `XYZ`, then you can use the following in your README:
 
 {% if readme_type == "markdown" %}
 
@@ -99,7 +99,7 @@ following in your README:
 ```
 
 {% else %}
-Ideally, you switch your README.md to use either Markdown or Restructured Text. If this is not possible,
+Ideally, you switch your README.md to use either Markdown or ReStructured Text. If this is not possible,
 link to the Zenodo record:
 
 ```
@@ -110,25 +110,22 @@ https://doi.org/10.5281/zenodo.XYZ
 
 {% endif %}
 
-### Does the README contain installation documentation?
+## 5. Does the README contain installation documentation?
 
 {% if has_installation_docs %}
 Yes.
 {% elif not has_readme %}
-No,
-
-This repository does not have a README, and therefore it is not possible for a reader to easily find installation
+No, this repository does not have a README, and therefore it is not possible for a reader to easily find installation
 documentation.
-{% elif readme_type == "markdown" %}
-No,
-
-this repository has a README, but it does not contain a section header entitled `# Installation`
+{% else %} 
+{% if readme_type == "markdown" %}
+No, this repository has a markdown README, but it does not contain a section header entitled `# Installation`
 (it's allowed to be any level deep).
 {% elif readme_type == "rst" %}
-No,
-
-this repository has a README, but it does not contain a section header entitled `Installation`
+No, this repository has a RST README, but it does not contain a section header entitled `Installation`
 (it's allowed to be any level deep).
+{% else %}
+No, this repository has a text readme. Please change to a formatted README.
 {% endif %}
 Please add a section that includes information
 on how the user should get the code (e.g., clone it from GitHub) and install it locally.  This might read like:
@@ -146,14 +143,36 @@ and document how it can be installed with `pip install`. This might read like:
 pip install {{ name.lower().replace("-", "_") }}
 ```
 
-### Is the code from the repository installable in a straight-forward manner?
+{% endif %}
+
+## 6. Is the code from the repository installable in a straight-forward manner?
 
 {% if has_setup %}
 Yes.
-{% else %}
-No,
 
-no packing setup configuration (e.g., `setup.py`, `setup.cfg`, `pyproject.toml`) was found.
+### Packaging Metadata
+
+{% if pyroma_score == 10 %}
+Your packaging has all required metadata based on [`pyroma`](https://github.com/regebro/pyroma).
+{% else %}
+[`pyroma`](https://github.com/regebro/pyroma) rating: {{ pyroma_score }}/10
+
+{% for failure in pyroma_failures %}
+1. {{ failure }}
+{% endfor %}
+
+These results can be regenerated locally using the following shell commands:
+
+```shell
+git clone {{ repo_url }}
+cd {{ name }}
+python -m pip install pyroma
+pyroma .
+```
+
+{% endif %}
+{% else %}
+No, no packing setup configuration (e.g., `setup.py`, `setup.cfg`, `pyproject.toml`) was found.
 This likely means that the project can not be installed in a straightforward, reproducible way.
 Your code should be laid out in a standard structure and configured for installation with one of these
 files. See the following resources:
@@ -168,17 +187,48 @@ set up an environment in a certain way, and not to package code such that it can
 and reused.
 
 1. `requirements.txt`
-2. Conda/Anaconda environment configuration
-   {% endif %}
+2. `Pipfile.lock`
+3. Conda/Anaconda environment configuration
 
-### Does the code conform to an external linter (e.g., `black` for Python)?
+{% if root_scripts %}
+
+### Root Scripts
+
+The repository contains the following scripts in the root directory:
+
+{% for root_script in root_scripts %}
+- `{{ root_script }}.py`
+{% endfor %}
+
+This is bad because these scripts are not packaged. This means that users will have to manually clone
+and set up the code from version control, and will be forced to run it based on where the code lives on
+the local file system. These all encumber easy reproducibility.
+
+{% if has_setup %}Instead,{% else %}After properly packaging this code,{% endif %}
+they should be included inside the package and run with `python -m {{ name }}.<your submodule>`
+(see [here](https://docs.python.org/3/using/cmdline.html#cmdoption-m)). One way to organize these
+scripts is to put them inside a `cli` submodule, such that they can be run like this:
+
+{% for root_script in root_scripts %}
+- `python -m {{ name }}.cli.{{ root_script }}`
+{% endfor %}
+
+Another possibility is to put these Python scripts in the root of the package
+(not to be confused with the root of the repository) such that they can be run like:
+
+{% for root_script in root_scripts %}
+- `python -m {{ name }}.{{ root_script }}`
+{% endfor %}
+
+{% endif %}
+{% endif %}
+
+## 7. Does the code conform to an external linter (e.g., `black` for Python)?
 
 {% if is_blackened %}
 Yes.
 {% else %}
-No,
-
-the repository does not conform to an external linter. This is important because there is a large
+No, the repository does not conform to an external linter. This is important because there is a large
 cognitive burden for reading code that does not conform to community standards. Linters take care
 of formatting code to reduce burden on readers, therefore better communicating your work to readers.
 
@@ -196,7 +246,7 @@ git push
 
 {% endif %}
 
-## Summary
+# Summary
 
 {% if passes %}
 
@@ -218,3 +268,15 @@ satisfied.
 {% if issue is not none %}
 For posterity, this review has also been included on {{ repo_url }}/issues/{{ issue }}.
 {% endif %}
+
+# Colophon
+
+This review was automatically generated with the following commands:
+
+```shell
+python -m pip install autoreviewer
+python -m autoreviewer {{ repo }}
+```
+
+Please leave any feedback about the completeness and/or correctness of this review on the issue tracker for
+[cthoyt/autoreviewer](https://github.com/cthoyt/autoreviewer).
