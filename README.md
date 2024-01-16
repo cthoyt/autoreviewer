@@ -37,21 +37,21 @@ Scientists often do the same bad stuff. Automate giving feedback during peer rev
 Goals:
 
 1. Given a GitHub repository, automate finding common issues such as
-   - No setup.py/setup.cfg/pyproject.toml
-   - No zenodo archive linked from the README
-   - Non-standard code layout (`src/` or bust)
-   - Files contain hard-coded file paths
-   - No documentation (search README for link to readthedocs)
-   - Package name doesn't match github repository name
-   - No reproducible installation instructions (i.e., does the README contain `pip`)
-   - Uses conda for installation
-   - Code does not have consistent style (i.e., there's no configuration for `black`)
-   - `pyroma` doesn't pass 10/10
-   - missing `LICENSE` file
-   - missing `CITATION.cff` file
+    - No setup.py/setup.cfg/pyproject.toml
+    - No zenodo archive linked from the README
+    - Non-standard code layout (`src/` or bust)
+    - Files contain hard-coded file paths
+    - No documentation (search README for link to readthedocs)
+    - Package name doesn't match github repository name
+    - No reproducible installation instructions (i.e., does the README contain `pip`)
+    - Uses conda for installation
+    - Code does not have consistent style (i.e., there's no configuration for `black`)
+    - `pyroma` doesn't pass 10/10
+    - missing `LICENSE` file
+    - missing `CITATION.cff` file
 2. Automate sending issues to the repository instructing how to do these things
-   - Use deterministic titles for all issues to avoid duplicates / make idempotent
-   - Create and edit "epic" issue that links others
+    - Use deterministic titles for all issues to avoid duplicates / make idempotent
+    - Create and edit "epic" issue that links others
 
 Example Reviews:
 
@@ -59,7 +59,8 @@ Example Reviews:
 - https://github.com/krishnanlab/PecanPy/issues/12
 - https://github.com/huihui1126/drugSim-pathway/issues/14
 
-Want to collaborate? What do you expect out of Python packages? Let me know in the comments. I envision this being sort of modular so people can contribute their own checks.
+Want to collaborate? What do you expect out of Python packages? Let me know in the comments. I envision this being sort
+of modular so people can contribute their own checks.
 
 Desired interface:
 
@@ -71,7 +72,7 @@ $ autoreviewer https://github.com/rs-costa/sbml2hyb
 
 ## J. Chem. Inf. Analysis
 
-![](src/autoreviewer/jcheminf/jcheminf_summary.png)
+![](/src/autoreviewer/jcheminf/jcheminf_summary.png)
 
 There's a submodule `autoreviewer.jcheminf` that has utilities for scraping the paper list
 from the Journal of Cheminformatics, getting their ePub files,
@@ -99,7 +100,8 @@ The best way to do this is `brew install pandoc` on macOS.
 ## 👐 Contributing
 
 Contributions, whether filing an issue, making a pull request, or forking, are appreciated. See
-[CONTRIBUTING.md](https://github.com/cthoyt/autoreviewer/blob/master/.github/CONTRIBUTING.md) for more information on getting involved.
+[CONTRIBUTING.md](https://github.com/cthoyt/autoreviewer/blob/master/.github/CONTRIBUTING.md) for more information on
+getting involved.
 
 ## 👋 Attribution
 
@@ -140,7 +142,8 @@ run reproducibly with:
 $ tox
 ```
 
-Additionally, these tests are automatically re-run with each commit in a [GitHub Action](https://github.com/cthoyt/autoreviewer/actions?query=workflow%3ATests).
+Additionally, these tests are automatically re-run with each commit in
+a [GitHub Action](https://github.com/cthoyt/autoreviewer/actions?query=workflow%3ATests).
 
 ### 📖 Building the Documentation
 
@@ -173,9 +176,11 @@ This script does the following:
 1. Uses [Bump2Version](https://github.com/c4urself/bump2version) to switch the version number in the `setup.cfg`,
    `src/autoreviewer/version.py`, and [`docs/source/conf.py`](docs/source/conf.py) to not have the `-dev` suffix
 2. Packages the code in both a tar archive and a wheel using [`build`](https://github.com/pypa/build)
-3. Uploads to PyPI using [`twine`](https://github.com/pypa/twine). Be sure to have a `.pypirc` file configured to avoid the need for manual input at this
+3. Uploads to PyPI using [`twine`](https://github.com/pypa/twine). Be sure to have a `.pypirc` file configured to avoid
+   the need for manual input at this
    step
 4. Push to GitHub. You'll need to make a release going with the commit where the version was bumped.
 5. Bump the version to the next patch. If you made big changes and want to bump the version by minor, you can
    use `tox -e bumpversion minor` after.
+
 </details>
