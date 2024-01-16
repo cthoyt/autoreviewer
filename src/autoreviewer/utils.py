@@ -3,7 +3,7 @@
 import hashlib
 import json
 import subprocess
-from contextlib import redirect_stdout
+from contextlib import redirect_stderr, redirect_stdout
 from functools import lru_cache
 from pathlib import Path
 from typing import Any, Optional
@@ -138,7 +138,9 @@ def check_black(path: str | Path) -> bool:
     """Check if the folder passes ``black --check``."""
     path = Path(path).resolve()
     try:
-        subprocess.check_call(["black", path.as_posix(), "--check", "--quiet"])
+        subprocess.check_call(
+            ["black", path.as_posix(), "--check", "--quiet"], stderr=subprocess.DEVNULL
+        )
     except subprocess.CalledProcessError:
         return False
     else:
@@ -190,7 +192,7 @@ def check_pyroma(path: str | Path) -> tuple[int, list[str]]:
     """Return feedback from ``pyroma`` or None if passing."""
     path = Path(path).resolve()
     try:
-        with redirect_stdout(None):
+        with redirect_stdout(None), redirect_stderr(None):
             data = projectdata.get_data(path.as_posix())
             rv = ratings.rate(data)
     except Exception:
@@ -212,4 +214,4 @@ def check_no_scripts(owner: str, name: str) -> list[str]:
     directory = get_repo_path(owner, name)
     scripts = directory.glob("*.py")
     skips = {"setup.py"}
-    return [s.stem for s in scripts if s not in skips]
+    return [s.stem for s in scripts if s.name not in skips]

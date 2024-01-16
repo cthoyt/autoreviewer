@@ -26,15 +26,21 @@ HERE = Path(__file__).parent.resolve()
 DOI_TO_GITHUB_PATH = HERE.joinpath("doi_to_github.tsv")
 ANALYSIS_PATH = HERE.joinpath("analysis.tsv")
 
-#: Add the DOI at the end of this URL to get an ePub file
-EPUB_BASE_URL = "https://jcheminf.biomedcentral.com/track/epub/10.1186"
+DOI_PREFIX = "10.1186/"
 JCHEMINF_DOI_PREFIX = "https://doi.org/10.1186/"
+
+
+def get_epub_url(luid: str) -> str:
+    """Get the download link based on a LUID."""
+    luid = luid.removeprefix(DOI_PREFIX)  # in case a DOI is passed
+    return f"https://jcheminf.biomedcentral.com/counter/epub/10.1186/{luid}.epub"
 
 
 def get_jcheminf_epub(doi: str) -> epub.EpubBook:
     """Get an ePub object from Journal of Cheminformatics."""
-    doi = doi.removeprefix("10.1186/")
-    path = MODULE.ensure("epubs", url=f"{EPUB_BASE_URL}/{doi}", name=f"{doi}.epub")
+    luid = doi.removeprefix(DOI_PREFIX)
+    url = get_epub_url(luid)
+    path = MODULE.ensure("epubs", url=url, download_kwargs=dict(progress_bar=False))
     return epub.read_epub(path, options=dict(ignore_ncx=True))
 
 
@@ -132,7 +138,7 @@ def _process(doi: str) -> tuple[str, str, str | None, str | None]:
             return doi, get_date(book), get_title(book), repos[0] if repos else None
 
 
-def scrape_dois(top: int = 27) -> list[str]:
+def scrape_dois(top: int = 28) -> list[str]:
     """Scrape the list of DOIs from the Journal of Cheminformatics' articles page."""
     url = "https://jcheminf.biomedcentral.com/articles?searchType=journalSearch&sort=PubDate&page="
     dois: set[str] = set()
@@ -154,6 +160,13 @@ def scrape_dois(top: int = 27) -> list[str]:
             doi = a.attrs["href"].removeprefix("/articles/")
             dois.add(doi)
     return sorted(dois)
+
+
+SKIP_REPOS = {
+    "shenggenglin/mddi-scl",
+    "duaibeom/molfindergithubrepository",
+    "awslabs/dgl-livesci",
+}
 
 
 @click.command()
@@ -200,7 +213,7 @@ def main() -> None:
         if "." in repo:  # ends with .git
             repo = repo.split(".")[0]
 
-        if repo in {"shenggenglin/mddi-scl"}:
+        if repo in SKIP_REPOS:
             # so broken we have to skip
             rows.append({"doi": doi, "date": date, "title": title})
             continue
