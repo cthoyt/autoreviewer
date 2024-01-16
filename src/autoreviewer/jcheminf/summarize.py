@@ -1,3 +1,5 @@
+"""Generate summary charts."""
+
 import datetime
 
 import matplotlib.pyplot as plt
@@ -24,6 +26,7 @@ def _license_status(x):
 
 
 def main():
+    """Generate summary charts."""
     fig, axes = plt.subplots(3, 2, figsize=(7.5, 7.5), sharey=True)
 
     axes = axes.ravel()
