@@ -140,7 +140,7 @@ def check_black(directory: str | Path) -> bool:
     parts = ["black", "--check", "--quiet", directory.as_posix()]
     try:
         subprocess.check_call(parts, stderr=subprocess.DEVNULL)
-    except subprocess.CalledProcessError as e:
+    except subprocess.CalledProcessError:
         return False
     else:
         return True
