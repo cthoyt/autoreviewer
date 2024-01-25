@@ -154,6 +154,15 @@ class Results:
 README_MAP = {"README.md": "markdown", "README.rst": "rst", "README.txt": "txt", None: None}
 
 
+def _has_markdown_installation(text: str | None) -> bool:
+    if not text:
+        return False
+    for line in text.splitlines():
+        if line.startswith("#") and "installation" in line.lower():
+            return True
+    return False
+
+
 def review(owner: str, name: str) -> Results:
     """Review a repository."""
     repo = f"{owner}/{name}"
@@ -169,7 +178,7 @@ def review(owner: str, name: str) -> Results:
         has_zenodo = (
             readme_text is not None and "https://zenodo.org/badge/DOI/10.5281/" in readme_text
         )
-        has_installation_docs = readme_text is not None and "# Installation" in readme_text
+        has_installation_docs = _has_markdown_installation(readme_text)
     elif readme_type == "rst":
         has_zenodo = False
         has_installation_docs = False
