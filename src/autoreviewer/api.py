@@ -134,6 +134,7 @@ class Results:
             date=self.date.strftime("%Y-%m-%d"),
             commit=self.commit,
             passes=self.passes,
+            is_blackened=self.is_blackened,
             issue=None,  # FIXME
         )
 

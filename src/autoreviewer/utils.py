@@ -134,14 +134,13 @@ def get_repo_path(owner: str, repo: str) -> Path | None:
     return directory
 
 
-def check_black(path: str | Path) -> bool:
+def check_black(directory: str | Path) -> bool:
     """Check if the folder passes ``black --check``."""
-    path = Path(path).resolve()
+    directory = Path(directory).resolve()
+    parts = ["black", "--check", "--quiet", directory.as_posix()]
     try:
-        subprocess.check_call(
-            ["black", path.as_posix(), "--check", "--quiet"], stderr=subprocess.DEVNULL
-        )
-    except subprocess.CalledProcessError:
+        subprocess.check_call(parts, stderr=subprocess.DEVNULL)
+    except subprocess.CalledProcessError as e:
         return False
     else:
         return True
@@ -151,7 +150,7 @@ def remote_check_black_github(owner, repo) -> bool:
     """Check if the GitHub repository passes ``black --check``."""
     directory = get_repo_path(owner, repo)
     if directory is None:
-        return False
+        raise RuntimeError
     return check_black(directory)
 
 
