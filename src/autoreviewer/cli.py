@@ -14,6 +14,7 @@ later, but that will cause problems--the code will get executed twice:
 """
 
 import logging
+import subprocess
 from pathlib import Path
 
 import click
@@ -34,7 +35,8 @@ logger = logging.getLogger(__name__)
     type=click.Path(),
     help="A custom path to the output file, otherwise outputs in the current directory",
 )
-def main(name_or_url: str, path: Path | None):
+@click.option("--open", is_flag=True, help="If set, opens the PDF")
+def main(name_or_url: str, path: Path | None, open: bool):
     """CLI for autoreviewer."""
     owner, repo, *_ = (
         name_or_url.removeprefix("https://github.com/").removesuffix(".git").rstrip("/").split("/")
@@ -47,6 +49,8 @@ def main(name_or_url: str, path: Path | None):
         path = Path.cwd().joinpath(f"{repo_clean}-review.pdf")
         results.write_pandoc(path)
         click.echo(f"Wrote review PDF to {path}")
+    if open:
+        subprocess.call(["open", path.as_posix()])
 
 
 if __name__ == "__main__":
