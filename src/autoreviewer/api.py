@@ -175,8 +175,9 @@ def review(owner: str, name: str) -> Results:
         has_zenodo = False
         has_installation_docs = False
     elif readme_type == "markdown":
-        has_zenodo = (
-            readme_text is not None and "https://zenodo.org/badge/DOI/10.5281/" in readme_text
+        has_zenodo = readme_text is not None and (
+            "https://zenodo.org/badge/DOI/10.5281/" in readme_text
+            or "https://zenodo.org/badge/latestdoi/" in readme_text
         )
         has_installation_docs = _has_markdown_installation(readme_text)
     elif readme_type == "rst":
