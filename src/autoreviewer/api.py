@@ -21,6 +21,7 @@ from autoreviewer.utils import (
     get_license,
     get_programming_language,
     get_readme,
+    get_repo_path,
     get_setup_config,
     remote_check_black_github,
     remote_check_pyroma,
@@ -164,13 +165,16 @@ def _has_markdown_installation(text: str | None) -> bool:
     return False
 
 
-def review(owner: str, name: str) -> Results:
+def review(owner: str, name: str, *, cache: bool = True) -> Results:
     """Review a repository."""
-    repo = f"{owner}/{name}"
     branch = get_default_branch(owner, name)
+
+    # Get the repository, and re-cache if necessary
+    get_repo_path(owner, name, cache=cache)
+
     is_blackened = remote_check_black_github(owner, name)
 
-    readme_name, readme_text = get_readme(repo=repo, branch=branch)
+    readme_name, readme_text = get_readme(owner, name, branch=branch)
     readme_type = README_MAP[readme_name]
     if readme_type is None:
         has_zenodo = False
@@ -184,15 +188,15 @@ def review(owner: str, name: str) -> Results:
     elif readme_type == "rst":
         has_zenodo = False
         has_installation_docs = False
-        tqdm.write(f"README was RST, assuming missing zenodo/installation docs: {repo}")
+        tqdm.write(f"README was RST, assuming missing zenodo/installation docs: {owner}/{name}")
     elif readme_type == "txt":
         has_zenodo = False
         has_installation_docs = False
-        tqdm.write(f"README was TXT, assuming missing zenodo/installation docs: {repo}")
+        tqdm.write(f"README was TXT, assuming missing zenodo/installation docs: {owner}/{name}")
     else:
         raise TypeError
 
-    setup_name, setup_text = get_setup_config(repo=repo, branch=branch)
+    setup_name, setup_text = get_setup_config(owner, name, branch=branch)
     has_setup = setup_name is not None
 
     license_name = get_license(owner, name)

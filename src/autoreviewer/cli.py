@@ -36,17 +36,18 @@ logger = logging.getLogger(__name__)
     help="A custom path to the output file, otherwise outputs in the current directory",
 )
 @click.option("--open", is_flag=True, help="If set, opens the PDF")
-def main(name_or_url: str, path: Path | None, open: bool):
+@click.option("--no-cache", is_flag=True, help="If set, uses the existing cache")
+def main(name_or_url: str, path: Path | None, open: bool, no_cache: bool) -> None:
     """CLI for autoreviewer."""
     owner, repo, *_ = (
         name_or_url.removeprefix("https://github.com/").removesuffix(".git").rstrip("/").split("/")
     )
-    repo_clean = repo.lower().replace("_", "-")
-    results = review(owner, repo)
+    repo = repo.lower().replace("_", "-")
+    results = review(owner, repo, cache=not no_cache)
     if path is not None:
         results.write_pandoc(path)
     else:
-        path = Path.cwd().joinpath(f"{repo_clean}-review.pdf")
+        path = Path.cwd().joinpath(f"{repo}-review.pdf")
         results.write_pandoc(path)
         click.echo(f"Wrote review PDF to {path}")
     if open:

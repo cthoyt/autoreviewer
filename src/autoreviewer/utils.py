@@ -2,10 +2,12 @@
 
 import hashlib
 import json
+import shutil
 import subprocess
 from contextlib import redirect_stderr, redirect_stdout
 from functools import lru_cache
 from pathlib import Path
+from textwrap import dedent
 from typing import Any, Optional
 
 import pystow
@@ -82,65 +84,81 @@ ResTup = tuple[str, str] | tuple[None, None]
 
 
 def get_file(
-    repo: str, name: str | list[str], *, branch: str = "main", desc: str | None = None
+    owner: str,
+    repo: str,
+    filenames: str | list[str],
+    *,
+    branch: str = "main",
+    desc: str | None = None,
 ) -> ResTup:
     """Get the file name and text, if available."""
-    if isinstance(name, str):
-        name = [name]
+    if isinstance(filenames, str):
+        filenames = [filenames]
 
-    owner, repo_name = repo.split("/")
-    directory = pystow.join("github", owner, repo_name)
+    directory = pystow.join("github", owner, repo)
     if directory.exists() and any(directory.iterdir()):
-        for n in name:
-            p = directory.joinpath(n)
+        for filename in filenames:
+            p = directory.joinpath(filename)
             if p.is_file():
-                return n, p.read_text()
+                return filename, p.read_text()
         return None, None
 
-    base_url = f"https://raw.githubusercontent.com/{repo}/{branch}"
-    for n in tqdm(name, leave=False, desc=desc, disable=True):
-        url = f"{base_url}/{n}"
+    base_url = f"https://raw.githubusercontent.com/{owner}/{repo}/{branch}"
+    for filename in tqdm(filenames, leave=False, desc=desc, disable=True):
+        url = f"{base_url}/{filename}"
         with logging_redirect_tqdm():
             res = requests.get(
                 url, timeout=1
             )  # timeout is short since these are small, simple files
         if res.status_code == 200:
-            return n, res.text
+            return filename, res.text
     return None, None
 
 
 @lru_cache
-def get_readme(repo: str, branch: str = "main") -> ResTup:
+def get_readme(owner: str, repo: str, branch: str = "main") -> ResTup:
     """Get the readme file name and text, if available."""
     return get_file(
-        repo, branch=branch, name=["README.md", "README.rst", "README.txt"], desc="Finding README"
+        owner,
+        repo,
+        branch=branch,
+        filenames=["README.md", "README.rst", "README.txt"],
+        desc="Finding README",
     )
 
 
 @lru_cache
-def get_setup_config(repo: str, branch: str = "main") -> ResTup:
+def get_setup_config(owner: str, repo: str, branch: str = "main") -> ResTup:
     """Get the setup configuration file name and text, if available."""
     return get_file(
+        owner,
         repo,
         branch=branch,
-        name=["setup.cfg", "setup.py", "pyproject.toml"],
+        filenames=["setup.cfg", "setup.py", "pyproject.toml"],
         desc="Finding setup conf.",
     )
 
 
 @lru_cache
-def get_license_file(repo: str, branch: str = "main") -> ResTup:
+def get_license_file(owner: str, repo: str, branch: str = "main") -> ResTup:
     """Get the license file name and text, if available."""
     return get_file(
-        repo, branch=branch, name=["LICENSE", "LICENSE.md", "LICENSE.rst"], desc="Finding license"
+        owner,
+        repo,
+        branch=branch,
+        filenames=["LICENSE", "LICENSE.md", "LICENSE.rst"],
+        desc="Finding license",
     )
 
 
-def get_repo_path(owner: str, repo: str) -> Path | None:
+def get_repo_path(owner: str, repo: str, *, cache: bool = True) -> Path | None:
     """Clone a repository from GitHub locally inside the PyStow folder."""
     directory = pystow.join("github", owner, repo)
     if directory.is_dir():
-        if any(directory.iterdir()):  # check not empty
+        if not cache:
+            # Delete the directory and start over
+            shutil.rmtree(directory)
+        elif any(directory.iterdir()):  # check not empty
             return directory
     url = f"https://github.com/{owner}/{repo}"
     try:
