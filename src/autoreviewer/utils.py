@@ -40,7 +40,23 @@ def github_api(
     if token is None:
         # Load the GitHub access token via PyStow. We'll
         # need it, so we don't hit the rate limit
-        token = pystow.get_config("github", "token", raise_on_missing=True)
+        try:
+            token = pystow.get_config("github", "token", raise_on_missing=True)
+        except pystow.config_api.ConfigError as e:
+            msg = dedent(
+                """\
+
+            You'll need to get a GitHub Personal Access Token using the following tutorial:
+            https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens
+
+            Then, you'll need to set it in a place where PyStow can read it.
+            Here's the information from the configuration error above:
+
+            {}
+            """
+            ).format(e)
+            raise ValueError(msg)
+
     headers = {
         "Authorization": f"token {token}",
     }
