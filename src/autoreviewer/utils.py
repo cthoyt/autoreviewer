@@ -242,14 +242,21 @@ def remote_check_pyroma(owner: str, name: str) -> tuple[int, list[str]]:
     return check_pyroma(directory)
 
 
-def check_no_scripts(owner: str, name: str) -> list[str]:
+def check_no_scripts(owner: str, name: str) -> list[Path]:
     """Get scripts sitting in the home directory."""
     directory = get_repo_path(owner, name)
     if directory is None:
         return []
-    scripts = directory.glob("*.py")
-    skips = {"setup.py"}
-    return [s.stem for s in scripts if s.name not in skips]
+    paths = list(directory.glob("*.py"))
+    for subdir_name in ["scripts", "script", "Scripts", "script", "bin"]:
+        subdir = directory.joinpath(subdir_name)
+        if subdir.is_dir():
+            print("found", subdir)
+            sss = list(subdir.glob("*.py"))
+            print(sss)
+            paths.extend(sss)
+    skip_names = {"setup.py"}
+    return [path.relative_to(directory) for path in paths if path.name not in skip_names]
 
 
 def remote_ruff_check(owner: str, name: str):

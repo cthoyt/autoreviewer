@@ -123,6 +123,7 @@ class Results:
             repo=self.repo,
             repo_url=f"https://github.com/{self.repo}",
             name=self.name,
+            name_norm=self.name.replace("-", "_"),
             branch=self.branch,
             license_name=self.license_name,
             has_readme=self.has_readme,

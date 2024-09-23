@@ -140,7 +140,7 @@ Alternatively, you can deploy your code to the [Python Package Index (PyPI)](htt
 and document how it can be installed with `pip install`. This might read like:
 
 ```shell
-pip install {{ name.lower().replace("-", "_") }}
+pip install {{ name_norm }}
 ```
 
 {% endif %}
@@ -190,37 +190,37 @@ and reused.
 2. `Pipfile.lock`
 3. Conda/Anaconda environment configuration
 
+{% endif %}
 {% if root_scripts %}
 
 ### Root Scripts
 
-The repository contains the following scripts in the root directory:
+The repository contains the following scripts that are not part of the package:
 
 {% for root_script in root_scripts %}
-- `{{ root_script }}.py`
+- `{{ root_script }}`
 {% endfor %}
 
 This is bad because these scripts are not packaged. This means that users will have to manually clone
 and set up the code from version control, and will be forced to run it based on where the code lives on
 the local file system. These all encumber easy reproducibility.
 
-{% if has_setup %}Instead,{% else %}After properly packaging this code,{% endif %}
-they should be included inside the package and run with `python -m {{ name }}.<your submodule>`
+{% if has_setup %}Instead, {% else %}After properly packaging this code, {% endif %}
+they should be included inside the package and run with `python -m {{ name_norm }}.<your submodule>`
 (see [here](https://docs.python.org/3/using/cmdline.html#cmdoption-m)). One way to organize these
 scripts is to put them inside a `cli` submodule, such that they can be run like this:
 
 {% for root_script in root_scripts %}
-- `python -m {{ name }}.cli.{{ root_script }}`
+- `python -m {{ name_norm }}.cli.{{ root_script.stem }}`
 {% endfor %}
 
 Another possibility is to put these Python scripts in the root of the package
 (not to be confused with the root of the repository) such that they can be run like:
 
 {% for root_script in root_scripts %}
-- `python -m {{ name }}.{{ root_script }}`
+- `python -m {{ name_norm }}.{{ root_script.stem }}`
 {% endfor %}
 
-{% endif %}
 {% endif %}
 
 ## 7. Does the code conform to an external linter and formatter (e.g., `ruff` for Python)?
