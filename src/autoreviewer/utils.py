@@ -20,8 +20,8 @@ from tqdm.contrib.logging import logging_redirect_tqdm
 #: Wikidata SPARQL endpoint. See https://www.wikidata.org/wiki/Wikidata:SPARQL_query_service#Interfacing
 WIKIDATA_ENDPOINT = "https://query.wikidata.org/bigdata/namespace/wdq/sparql"
 
-#: The module where JCheminf stuff goes
-MODULE = pystow.module("jcheminf")
+#: The module where autoreviewer stuff goes
+MODULE = pystow.module("autoreviewer")
 
 
 def strip(s: str) -> str:
