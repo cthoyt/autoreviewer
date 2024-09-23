@@ -25,6 +25,7 @@ from autoreviewer.utils import (
     get_setup_config,
     remote_check_black_github,
     remote_check_pyroma,
+    remote_ruff_check,
 )
 
 HERE = Path(__file__).parent.resolve()
@@ -64,6 +65,7 @@ class Results:
     commit: str
     branch: str
     root_scripts: list[str]
+    ruff_check_errors: list
 
     date: datetime.date = field(default_factory=datetime.date.today)
     readme_type: str | None = None
@@ -136,6 +138,8 @@ class Results:
             commit=self.commit,
             passes=self.passes,
             is_blackened=self.is_blackened,
+            is_linted=len(self.ruff_check_errors) == 0,
+            ruff_check_errors=self.ruff_check_errors,
             issue=None,  # FIXME
         )
 
@@ -173,6 +177,8 @@ def review(owner: str, name: str, *, cache: bool = True) -> Results:
     get_repo_path(owner, name, cache=cache)
 
     is_blackened = remote_check_black_github(owner, name)
+
+    ruff_check_errors = remote_ruff_check(owner, name)
 
     readme_name, readme_text = get_readme(owner, name, branch=branch)
     readme_type = README_MAP[readme_name]
@@ -220,6 +226,7 @@ def review(owner: str, name: str, *, cache: bool = True) -> Results:
         has_issues=has_issues,
         is_fork=is_fork,
         is_blackened=is_blackened,
+        ruff_check_errors=ruff_check_errors,
         pyroma_score=pyroma_score,
         pyroma_failures=pyroma_failures,
         has_setup=has_setup,

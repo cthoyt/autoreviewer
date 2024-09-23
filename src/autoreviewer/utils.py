@@ -250,3 +250,22 @@ def check_no_scripts(owner: str, name: str) -> list[str]:
     scripts = directory.glob("*.py")
     skips = {"setup.py"}
     return [s.stem for s in scripts if s.name not in skips]
+
+
+def remote_ruff_check(owner: str, name: str):
+    """Check if the GitHub repository passes ``ruff``."""
+    directory = get_repo_path(owner, name)
+    if directory is None:
+        return []
+    return ruff_check(directory)
+
+
+def ruff_check(directory: Path | str):
+    directory = Path(directory).expanduser().absolute()
+    result = subprocess.run(
+        ["ruff", "check", "--output-format", "json", directory.as_posix()],
+        capture_output=True,
+        text=True,
+    )
+    errors = json.loads(result.stdout)
+    return errors

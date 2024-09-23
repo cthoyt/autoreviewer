@@ -223,14 +223,17 @@ Another possibility is to put these Python scripts in the root of the package
 {% endif %}
 {% endif %}
 
-## 7. Does the code conform to an external linter (e.g., `black` for Python)?
+## 7. Does the code conform to an external linter and formatter (e.g., `ruff` for Python)?
 
-{% if is_blackened %}
+{% if is_blackened and is_linted %}
 Yes.
 {% else %}
-No, the repository does not conform to an external linter. This is important because there is a large
-cognitive burden for reading code that does not conform to community standards. Linters take care
-of formatting code to reduce burden on readers, therefore better communicating your work to readers.
+{% if not is_blackened %}
+### Formatting 
+
+The repository does not conform to an external formatter. This is important because there is a large
+cognitive burden for reading code that does not conform to community standards. Formatters take care
+of styling code to reduce burden on readers, therefore better communicating your work to readers.
 
 For example, [`black`](https://github.com/psf/black)
 can be applied to auto-format Python code with the following:
@@ -243,7 +246,21 @@ black .
 git commit -m "Blacken code"
 git push
 ```
+{% endif %}
+{% if not is_linted %}
+### Linting
 
+The repository does not pass linting. This means that there are obvious, and usually easy to fix
+issues that can be automatically detected. You can run the linter yourself with:
+
+```shell
+git clone {{ repo_url }}
+cd {{ name }}
+python -m pip install ruff
+ruff check .
+```
+
+{% endif %}
 {% endif %}
 
 # Summary
