@@ -42,7 +42,7 @@ def main(name_or_url: str, path: Path | None, open: bool, no_cache: bool) -> Non
     owner, repo, *_ = (
         name_or_url.removeprefix("https://github.com/").removesuffix(".git").rstrip("/").split("/")
     )
-    repo = repo.lower().replace("_", "-")
+    repo = repo.lower()
     results = review(owner, repo, cache=not no_cache)
     if path is not None:
         results.write_pandoc(path)
