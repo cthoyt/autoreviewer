@@ -253,10 +253,7 @@ def check_no_scripts(owner: str, name: str) -> list[Path]:
     for subdir_name in ["scripts", "script", "Scripts", "script", "bin"]:
         subdir = directory.joinpath(subdir_name)
         if subdir.is_dir():
-            print("found", subdir)
-            sss = list(subdir.glob("*.py"))
-            print(sss)
-            paths.extend(sss)
+            paths.extend(subdir.glob("*.py"))
     skip_names = {"setup.py"}
     return [path.relative_to(directory) for path in paths if path.name not in skip_names]
 

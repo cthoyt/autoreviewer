@@ -45,7 +45,7 @@ Goals:
     - Package name doesn't match github repository name
     - No reproducible installation instructions (i.e., does the README contain `pip`)
     - Uses conda for installation
-    - Code does not have consistent style (i.e., there's no configuration for `black`)
+    - Code does not have consistent style (i.e., there's no configuration for `black` or `ruff`)
     - `pyroma` doesn't pass 10/10
     - missing `LICENSE` file
     - missing `CITATION.cff` file

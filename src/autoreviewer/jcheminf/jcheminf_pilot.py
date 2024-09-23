@@ -138,7 +138,7 @@ def _process(doi: str) -> tuple[str, str, str | None, str | None]:
             return doi, get_date(book), get_title(book), repos[0] if repos else None
 
 
-def scrape_dois(top: int = 28) -> list[str]:
+def scrape_dois(top: int = 30) -> list[str]:
     """Scrape the list of DOIs from the Journal of Cheminformatics' articles page."""
     url = "https://jcheminf.biomedcentral.com/articles?searchType=journalSearch&sort=PubDate&page="
     dois: set[str] = set()
@@ -205,7 +205,7 @@ def main(reindex: bool) -> None:
         )
 
     rows = []
-    for doi, date, title, repo in tqdm(df.values, desc="Loading cached", unit="repo"):
+    for doi, date, title, repo in tqdm(df.values, desc="Loading cached", unit="repo", unit_scale=True):
         row = {"doi": doi, "date": date, "title": title}
         if pd.isna(repo):
             rows.append(row)
