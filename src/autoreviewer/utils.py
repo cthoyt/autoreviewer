@@ -197,6 +197,8 @@ def get_has_issues(owner: str, name: str) -> bool:
 def get_default_branch(owner: str, name: str) -> str:
     """Get the default branch for a GitHub repository."""
     res = get_repo_metadata(f"{owner}/{name}")
+    if "default_branch" not in res:
+        raise KeyError(f"No default branch found in response:\n{json.dumps(res, indent=2)}")
     return res["default_branch"]
 
 
