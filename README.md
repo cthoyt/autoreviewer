@@ -72,7 +72,7 @@ $ autoreviewer https://github.com/rs-costa/sbml2hyb
 
 ## J. Chem. Inf. Analysis
 
-![](/src/autoreviewer/jcheminf/jcheminf_summary.png)
+![](/src/autoreviewer/jcheminf/summary.png)
 
 There's a submodule `autoreviewer.jcheminf` that has utilities for scraping the paper list
 from the Journal of Cheminformatics, getting their ePub files,
