@@ -4,11 +4,12 @@ import hashlib
 import json
 import shutil
 import subprocess
+import typing
 from contextlib import redirect_stderr, redirect_stdout
 from functools import lru_cache
 from pathlib import Path
 from textwrap import dedent
-from typing import Any, Optional
+from typing import Any, Literal, NamedTuple, Optional, TypeAlias
 
 import pystow
 import requests
@@ -75,33 +76,43 @@ def get_repo_metadata(repo: str) -> dict:
     path = MODULE.join("github-info", name=f"{md5.hexdigest()[:8]}.json")
     if path.is_file():
         return json.loads(path.read_text())
+    # Note that the dash/slash matters here
     res_json = github_api(f"https://api.github.com/repos/{repo}").json()
     path.write_text(json.dumps(res_json, indent=2))
     return res_json
 
 
-ResTup = tuple[str, str] | tuple[None, None]
+class ResultTuple(NamedTuple):
+    """A tuple containing results."""
+
+    filename: str
+    contents: str
+
+
+OptionalResultTuple = ResultTuple | None
 
 
 def get_file(
     owner: str,
     repo: str,
-    filenames: str | list[str],
+    filenames: str | typing.Collection[str],
     *,
-    branch: str = "main",
+    branch: str | None = None,
     desc: str | None = None,
-) -> ResTup:
+) -> OptionalResultTuple | None:
     """Get the file name and text, if available."""
     if isinstance(filenames, str):
         filenames = [filenames]
+    if branch is None:
+        branch = "main"
 
     directory = pystow.join("github", owner, repo)
     if directory.exists() and any(directory.iterdir()):
         for filename in filenames:
             p = directory.joinpath(filename)
             if p.is_file():
-                return filename, p.read_text()
-        return None, None
+                return ResultTuple(filename, p.read_text())
+        return None
 
     base_url = f"https://raw.githubusercontent.com/{owner}/{repo}/{branch}"
     for filename in tqdm(filenames, leave=False, desc=desc, disable=True):
@@ -111,12 +122,12 @@ def get_file(
                 url, timeout=1
             )  # timeout is short since these are small, simple files
         if res.status_code == 200:
-            return filename, res.text
-    return None, None
+            return ResultTuple(filename, res.text)
+    return None
 
 
 @lru_cache
-def get_readme(owner: str, repo: str, branch: str = "main") -> ResTup:
+def get_readme(owner: str, repo: str, branch: str | None = None) -> OptionalResultTuple:
     """Get the readme file name and text, if available."""
     return get_file(
         owner,
@@ -127,20 +138,37 @@ def get_readme(owner: str, repo: str, branch: str = "main") -> ResTup:
     )
 
 
+PackagingFiles: TypeAlias = Literal[
+    "setup.cfg",
+    "setup.py",
+    "pyproject.toml",
+    "poetry.toml",
+    "uv.toml",
+    "pdm.toml",
+    "flit.ini",
+    "hatch.toml",
+    "pylock.toml",
+    # questionable
+    "environment.yml",
+    "environment.yaml",
+    "requirements.txt",
+]
+
+
 @lru_cache
-def get_setup_config(owner: str, repo: str, branch: str = "main") -> ResTup:
+def get_packaging_config(owner: str, repo: str, branch: str | None = None) -> OptionalResultTuple:
     """Get the setup configuration file name and text, if available."""
     return get_file(
         owner,
         repo,
         branch=branch,
-        filenames=["setup.cfg", "setup.py", "pyproject.toml"],
-        desc="Finding setup conf.",
+        filenames=typing.get_args(PackagingFiles),
+        desc="Finding packaging configuration.",
     )
 
 
 @lru_cache
-def get_license_file(owner: str, repo: str, branch: str = "main") -> ResTup:
+def get_license_file(owner: str, repo: str, branch: str | None = None) -> OptionalResultTuple:
     """Get the license file name and text, if available."""
     return get_file(
         owner,
@@ -151,7 +179,16 @@ def get_license_file(owner: str, repo: str, branch: str = "main") -> ResTup:
     )
 
 
-def get_repo_path(owner: str, repo: str, *, cache: bool = True) -> Path | None:
+FILETYPES = [".md", ".py", ".yml", ".yaml", ".cfg", ".toml", ".ini", ".rst"]
+
+
+def get_repo_path(
+    owner: str,
+    repo: str,
+    branch: str,
+    *,
+    cache: bool = True,
+) -> Path | None:
     """Clone a repository from GitHub locally inside the PyStow folder."""
     directory = pystow.join("github", owner, repo)
     if directory.is_dir():
@@ -161,10 +198,42 @@ def get_repo_path(owner: str, repo: str, *, cache: bool = True) -> Path | None:
         elif any(directory.iterdir()):  # check not empty
             return directory
     url = f"https://github.com/{owner}/{repo}"
+
     try:
-        subprocess.check_call(["git", "clone", "--depth", "1", url, directory.as_posix()])
+        subprocess.check_call(
+            [
+                "git",
+                "clone",
+                "--filter=blob:none",
+                "--no-checkout",
+                "--depth",
+                "1",
+                url,
+                directory.as_posix(),
+            ]
+        )
     except subprocess.CalledProcessError:
         return None
+
+    sparse_checkout_rows = [
+        "README.txt",
+        "requirements.txt",
+    ]
+    for t in FILETYPES:
+        sparse_checkout_rows.append(f"*{t}")
+        sparse_checkout_rows.append(f"*/*{t}")
+    sparse_checkout_path = directory.joinpath(".git", "info", "sparse-checkout")
+    sparse_checkout_path.write_text("\n".join(sparse_checkout_rows))
+
+    commands = [
+        ["git", "sparse-checkout", "init", "--no-cone"],
+        ["git", "checkout", branch],
+    ]
+    for command in commands:
+        try:
+            subprocess.check_call(command, cwd=directory.as_posix())
+        except subprocess.CalledProcessError:
+            return None
     return directory
 
 
@@ -180,9 +249,9 @@ def check_black(directory: str | Path) -> bool:
         return True
 
 
-def remote_check_black_github(owner, repo) -> bool:
+def remote_check_formatted_github(owner: str, repo: str, branch: str) -> bool:
     """Check if the GitHub repository passes ``black --check``."""
-    directory = get_repo_path(owner, repo)
+    directory = get_repo_path(owner, repo, branch=branch)
     if directory is None:
         raise RuntimeError
     return check_black(directory)
@@ -230,23 +299,23 @@ def check_pyroma(path: str | Path) -> tuple[int, list[str]]:
         with redirect_stdout(None), redirect_stderr(None):
             data = projectdata.get_data(path.as_posix())
             rv = ratings.rate(data)
-    except Exception:
-        return 0, []
+    except BaseException:  # noqa:B036
+        return -1, []
     else:
         return rv
 
 
-def remote_check_pyroma(owner: str, name: str) -> tuple[int, list[str]]:
+def remote_check_pyroma(owner: str, name: str, branch: str) -> tuple[int, list[str]]:
     """Check if the GitHub repository passes ``pyroma``."""
-    directory = get_repo_path(owner, name)
+    directory = get_repo_path(owner, name, branch=branch)
     if directory is None:
         return 0, []
     return check_pyroma(directory)
 
 
-def check_no_scripts(owner: str, name: str) -> list[Path]:
+def check_no_scripts(owner: str, name: str, branch: str) -> list[str]:
     """Get scripts sitting in the home directory."""
-    directory = get_repo_path(owner, name)
+    directory = get_repo_path(owner, name, branch=branch)
     if directory is None:
         return []
     paths = list(directory.glob("*.py"))
@@ -255,18 +324,19 @@ def check_no_scripts(owner: str, name: str) -> list[Path]:
         if subdir.is_dir():
             paths.extend(subdir.glob("*.py"))
     skip_names = {"setup.py"}
-    return [path.relative_to(directory) for path in paths if path.name not in skip_names]
+    return [path.relative_to(directory).as_posix() for path in paths if path.name not in skip_names]
 
 
-def remote_ruff_check(owner: str, name: str):
+def remove_check_linted_github(owner: str, name: str, branch: str):
     """Check if the GitHub repository passes ``ruff``."""
-    directory = get_repo_path(owner, name)
+    directory = get_repo_path(owner, name, branch=branch)
     if directory is None:
         return []
-    return ruff_check(directory)
+    return ruff_check_linting(directory)
 
 
-def ruff_check(directory: Path | str):
+def ruff_check_linting(directory: Path | str):
+    """Check linting with ruff."""
     directory = Path(directory).expanduser().absolute()
     result = subprocess.run(
         ["ruff", "check", "--output-format", "json", directory.as_posix()],
@@ -275,3 +345,22 @@ def ruff_check(directory: Path | str):
     )
     errors = json.loads(result.stdout)
     return errors
+
+
+def format_ruff_check_errors(errors):
+    """Format ruff errors as text."""
+    if not errors:
+        return
+    s = "# Ruff Linter\n\n"
+    for error in errors:
+        s += (
+            f"- {error['filename']} [{error['code']}]({error['url']}) "
+            f"{error['location']['row']}:{error['location']['column']} {error['message']}\n"
+        )
+    return s + "\n"
+
+
+if __name__ == "__main__":
+    get_repo_path("cthoyt", "pystow", "main")
+    # r = ruff_check("/Users/cthoyt/.data/github/MiJia-ID/ggn-go")
+    # print(r)

@@ -225,10 +225,10 @@ Another possibility is to put these Python scripts in the root of the package
 
 ## 7. Does the code conform to an external linter and formatter (e.g., `ruff` for Python)?
 
-{% if is_blackened and is_linted %}
+{% if is_formatted and is_linted %}
 Yes.
 {% else %}
-{% if not is_blackened %}
+{% if not is_formatted %}
 ### Formatting 
 
 The repository does not conform to an external formatter. This is important because there is a large
@@ -288,7 +288,8 @@ For posterity, this review has also been included on {{ repo_url }}/issues/{{ is
 
 # Colophon
 
-This review was automatically generated with the following commands:
+This review was automatically generated with `autoreviewer` v{{ version}}
+with the following commands:
 
 ```shell
 python -m pip install autoreviewer

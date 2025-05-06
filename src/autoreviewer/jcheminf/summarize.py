@@ -2,6 +2,7 @@
 
 import datetime
 
+import click
 import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
@@ -27,7 +28,7 @@ def _license_status(x):
 
 
 def _percentage(df, column):
-    series = df.groupby("year")[column].mean()
+    series = df.groupby(["year", "journal"])[column].mean()
     rdf = series.to_frame().reset_index()
     return rdf
 
@@ -37,78 +38,141 @@ def _percentage_axis(ax):
     ax.yaxis.set_major_formatter(formatter)
 
 
+JOURNAL = {
+    "joss": "JOSS",
+    "jcheminf": "J. Chem. Inf.",
+    "bmcbioinfo": "BMC Bioinformatics",
+}
+
+
+@click.command()
 def main():
     """Generate summary charts."""
-    fig, axes = plt.subplots(2, 3, figsize=(11, 5))
+    fig, axes = plt.subplots(2, 4, figsize=(14, 5))
 
     axes = axes.ravel()
 
     today = datetime.date.today()
     df = pd.read_csv("analysis.tsv", sep="\t")
     df["has_github"] = df["repo"].notna()
-    df["date"] = pd.to_datetime(df["date"])
+
+    df["journal"] = df["journal"].map(JOURNAL)
+
+    def _fix_date(s):
+        if pd.isna(s):
+            return s
+        if len(s) == 4:
+            return s + "-01-01"
+        return s
+
+    df["date"] = pd.to_datetime(df["date"].map(_fix_date))
     df = df[df["date"].notna()]
     df["year"] = df["date"].dt.year
     # 2017 was the first year, where a repository was detected
     df = df[(2017 < df["year"]) & (df["year"] < today.year)]  # don't make ragged chart
 
-    sns.barplot(x="year", y="has_github", data=_percentage(df, "has_github"), ax=axes[0])
+    g1 = sns.lineplot(
+        x="year",
+        y="has_github",
+        hue="journal",
+        data=_percentage(df, "has_github"),
+        ax=axes[0],
+    )
+    g1.legend_.remove()
     axes[0].set_ylabel("")
     axes[0].set_xlabel("")
     axes[0].set_title("Has GitHub Repo")
     _percentage_axis(axes[0])
 
-    sns.barplot(
-        x="year", y="has_issues", data=_percentage(df[df["has_github"]], "has_issues"), ax=axes[1]
+    g2 = sns.lineplot(
+        x="year",
+        y="has_issues",
+        hue="journal",
+        data=_percentage(df[df["has_github"]], "has_issues"),
+        ax=axes[1],
     )
+    g2.legend_.remove()
     axes[1].set_ylabel("")
     axes[1].set_xlabel("")
     axes[1].set_title("Has Issue Tracker")
     _percentage_axis(axes[1])
 
     df["package_status"] = df["pyroma_score"].map(_p_status)
-    sns.barplot(
+    g3 = sns.lineplot(
         x="year",
         y="package_status",
+        hue="journal",
         data=_percentage(df[df["has_github"]], "package_status"),
         ax=axes[2],
     )
+    g3.legend_.remove()
     axes[2].set_xlabel("")
     axes[2].set_ylabel("")
     axes[2].set_title("Packaged Code")
     _percentage_axis(axes[2])
 
-    sns.barplot(
+    g4 = sns.lineplot(
         x="year",
-        y="is_blackened",
-        data=_percentage(df[df["has_github"]], "is_blackened"),
+        y="is_formatted",
+        hue="journal",
+        data=_percentage(df[df["has_github"]], "is_formatted"),
         ax=axes[3],
     )
+    g4.legend_.remove()
     axes[3].set_xlabel("")
     axes[3].set_ylabel("")
-    axes[3].set_title("Applied Linting")
+    axes[3].set_title("Applied Formatting")
     _percentage_axis(axes[3])
 
-    sns.barplot(
+    g5 = sns.lineplot(
         x="year",
-        y="has_installation_docs",
-        data=_percentage(df[df["has_github"]], "has_installation_docs"),
+        y="is_linted",
+        hue="journal",
+        data=_percentage(df[df["has_github"]], "is_linted"),
         ax=axes[4],
     )
+    g5.legend_.remove()
     axes[4].set_xlabel("")
     axes[4].set_ylabel("")
-    axes[4].set_title("Has Installation Documentation")
+    axes[4].set_title("Applied Linting")
     _percentage_axis(axes[4])
 
-    df["license_status"] = df["license"].map(_license_status)
-    sns.countplot(x="year", hue="license_status", data=df[df["has_github"]], ax=axes[5])
+    g6 = sns.lineplot(
+        x="year",
+        y="has_installation_docs",
+        hue="journal",
+        data=_percentage(df[df["has_github"]], "has_installation_docs"),
+        ax=axes[5],
+    )
+    g6.legend_.remove()
     axes[5].set_xlabel("")
     axes[5].set_ylabel("")
-    axes[5].set_title("License Status")
+    axes[5].set_title("Has Installation Documentation")
+    _percentage_axis(axes[5])
 
-    plt.suptitle("Analysis of J. Chem. Inf. Papers", fontsize=16)
+    df["license_status"] = df["license"].map(_license_status)
+    df["has_known_license"] = df["license_status"] == "Present"
+    g7 = sns.lineplot(
+        y="has_known_license",
+        x="year",
+        hue="journal",
+        data=_percentage(df[df["has_github"]], "has_known_license"),
+        ax=axes[6],
+    )
+    axes[6].set_xlabel("")
+    axes[6].set_ylabel("")
+    axes[6].set_title("Has (Known) License")
+    _percentage_axis(axes[6])
+
+    axes[7].axis("off")
+
+    handles, labels = axes[6].get_legend_handles_labels()
+    axes[7].legend(handles=handles, labels=labels, title="Venue")
+    g7.legend_.remove()
+
+    plt.suptitle("Cross-Venue Comparison", fontsize=16)
     plt.tight_layout()
-    plt.savefig("jcheminf_summary.png", dpi=300)
+    plt.savefig("summary.png", dpi=300)
 
 
 if __name__ == "__main__":

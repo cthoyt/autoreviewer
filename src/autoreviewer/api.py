@@ -4,6 +4,7 @@
 
 import dataclasses
 import datetime
+import logging
 import os
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -19,22 +20,29 @@ from autoreviewer.utils import (
     get_has_issues,
     get_is_fork,
     get_license,
+    get_packaging_config,
     get_programming_language,
     get_readme,
     get_repo_path,
-    get_setup_config,
-    remote_check_black_github,
+    remote_check_formatted_github,
     remote_check_pyroma,
-    remote_ruff_check,
+    remove_check_linted_github,
 )
+from autoreviewer.version import get_version
 
 HERE = Path(__file__).parent.resolve()
 TEMPLATES = HERE.joinpath("templates")
 
 environment = Environment(
-    autoescape=True, loader=FileSystemLoader(TEMPLATES), trim_blocks=True, lstrip_blocks=True
+    autoescape=True,
+    loader=FileSystemLoader(TEMPLATES),
+    trim_blocks=True,
+    lstrip_blocks=True,
 )
 review_template = environment.get_template("review.md")
+
+
+logging.getLogger("build").setLevel(logging.CRITICAL + 10)
 
 
 @dataclass
@@ -59,7 +67,8 @@ class Results:
     has_installation_docs: bool
     has_issues: bool
     is_fork: bool
-    is_blackened: bool
+    is_formatted: bool
+    is_linted: bool
     pyroma_score: int
     pyroma_failures: list[str]
     commit: str
@@ -113,7 +122,7 @@ class Results:
                 self.has_zenodo,
                 self.has_setup,
                 self.has_installation_docs,
-                self.is_blackened,
+                self.is_formatted,
             ]
         )
 
@@ -138,10 +147,11 @@ class Results:
             date=self.date.strftime("%Y-%m-%d"),
             commit=self.commit,
             passes=self.passes,
-            is_blackened=self.is_blackened,
-            is_linted=len(self.ruff_check_errors) == 0,
+            is_formatted=self.is_formatted,
+            is_linted=self.is_linted,
             ruff_check_errors=self.ruff_check_errors,
             issue=None,  # FIXME
+            version=get_version(with_git_hash=True),
         )
 
     def write_pandoc(self, path: str | Path) -> None:
@@ -158,7 +168,11 @@ class Results:
         os.system(command)
 
 
-README_MAP = {"README.md": "markdown", "README.rst": "rst", "README.txt": "txt", None: None}
+README_MAP: dict[str, str] = {
+    "README.md": "markdown",
+    "README.rst": "rst",
+    "README.txt": "txt",
+}
 
 
 def _has_markdown_installation(text: str | None) -> bool:
@@ -175,46 +189,54 @@ def review(owner: str, name: str, *, cache: bool = True) -> Results:
     branch = get_default_branch(owner, name)
 
     # Get the repository, and re-cache if necessary
-    get_repo_path(owner, name, cache=cache)
+    get_repo_path(owner, name, cache=cache, branch=branch)
 
-    is_blackened = remote_check_black_github(owner, name)
+    is_formatted = remote_check_formatted_github(owner, name, branch=branch)
 
-    ruff_check_errors = remote_ruff_check(owner, name)
+    lint_errors = remove_check_linted_github(owner, name, branch=branch)
 
-    readme_name, readme_text = get_readme(owner, name, branch=branch)
-    readme_type = README_MAP[readme_name]
-    if readme_type is None:
+    readme_result = get_readme(owner, name, branch=branch)
+    if readme_result is None:
+        readme_type = None
         has_zenodo = False
         has_installation_docs = False
-    elif readme_type == "markdown":
-        has_zenodo = readme_text is not None and (
-            "https://zenodo.org/badge/DOI/10.5281/" in readme_text
-            or "https://zenodo.org/badge/latestdoi/" in readme_text
-        )
-        has_installation_docs = _has_markdown_installation(readme_text)
-    elif readme_type == "rst":
-        has_zenodo = False
-        has_installation_docs = False
-        tqdm.write(f"README was RST, assuming missing zenodo/installation docs: {owner}/{name}")
-    elif readme_type == "txt":
-        has_zenodo = False
-        has_installation_docs = False
-        tqdm.write(f"README was TXT, assuming missing zenodo/installation docs: {owner}/{name}")
     else:
-        raise TypeError
+        readme_type = README_MAP[readme_result.filename]
+        match readme_type:
+            case "markdown":
+                has_zenodo = readme_result.contents is not None and (
+                    "https://zenodo.org/badge/DOI/10.5281/" in readme_result.contents
+                    or "https://zenodo.org/badge/latestdoi/" in readme_result.contents
+                )
+                has_installation_docs = _has_markdown_installation(readme_result.contents)
+            case "rst":
+                has_zenodo = False
+                has_installation_docs = False
+                tqdm.write(
+                    f"README was RST, assuming missing zenodo/installation docs: {owner}/{name}"
+                )
+            case "txt":
+                has_zenodo = False
+                has_installation_docs = False
+                tqdm.write(
+                    f"README was TXT, assuming missing zenodo/installation docs: {owner}/{name}"
+                )
+            case _:
+                raise TypeError
 
-    setup_name, setup_text = get_setup_config(owner, name, branch=branch)
-    has_setup = setup_name is not None
+    packaging_config = get_packaging_config(owner, name, branch=branch)
+    has_setup = packaging_config is not None
 
     license_name = get_license(owner, name)
 
-    pyroma_score, pyroma_failures = remote_check_pyroma(owner, name)
+    # TODO handle -1 for pyroma score, which happens when install fails
+    pyroma_score, pyroma_failures = remote_check_pyroma(owner, name, branch=branch)
     has_issues = get_has_issues(owner, name)
     language = get_programming_language(owner, name)
     is_fork = get_is_fork(owner, name)
     commit = get_commit(owner, name)
 
-    root_scripts = check_no_scripts(owner, name)
+    root_scripts = check_no_scripts(owner, name, branch=branch)
 
     return Results(
         owner=owner,
@@ -226,8 +248,9 @@ def review(owner: str, name: str, *, cache: bool = True) -> Results:
         has_zenodo=has_zenodo,
         has_issues=has_issues,
         is_fork=is_fork,
-        is_blackened=is_blackened,
-        ruff_check_errors=ruff_check_errors,
+        is_formatted=is_formatted,
+        ruff_check_errors=lint_errors,
+        is_linted=len(lint_errors) == 0,
         pyroma_score=pyroma_score,
         pyroma_failures=pyroma_failures,
         has_setup=has_setup,
