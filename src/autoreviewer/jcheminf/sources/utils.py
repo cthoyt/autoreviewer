@@ -6,6 +6,7 @@ from curies import Reference
 from pydantic import AnyHttpUrl, BaseModel, ConfigDict, Field
 from tabulate import tabulate
 
+from autoreviewer import Results
 from autoreviewer.utils import GitHubRepository
 
 __all__ = [
@@ -76,3 +77,11 @@ SKIP_REPOSITORIES: set[GitHubRepository] = {
     GitHubRepository("awslabs", "dgl-livesci"),
     GitHubRepository("kohulan", "smiles-to-iupac-translator"),  # password protected
 }
+
+
+class ResultPack(BaseModel):
+    """An object for journal, an article-repo link, and review results."""
+
+    journal: str
+    link: ArticleRepositoryLink
+    results: Results | None = None

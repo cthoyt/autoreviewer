@@ -9,7 +9,8 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
 
-from autoreviewer.jcheminf.jcheminf_pilot import ANALYSIS_PATH, HERE, ResultPack
+from autoreviewer.jcheminf.jcheminf_pilot import ANALYSIS_PATH, HERE
+from autoreviewer.jcheminf.sources.utils import ResultPack
 
 SUMMARY_PATH = HERE.joinpath("summary.svg")
 ANALYSIS_TSV_PATH = HERE.joinpath("analysis.tsv")
@@ -58,14 +59,18 @@ JOURNAL = {
 @click.command()
 def main():
     """Generate summary charts."""
+    with gzip.open(ANALYSIS_PATH, "rt") as file:
+        models = [ResultPack.model_validate_json(line) for line in file]
+    summarize(models)
+
+
+def summarize(models: list[ResultPack]) -> None:
+    """Summarize all result packs."""
     fig, axes = plt.subplots(2, 4, figsize=(14, 5))
 
     axes = axes.ravel()
 
     today = datetime.date.today()
-
-    with gzip.open(ANALYSIS_PATH, "rt") as file:
-        models = [ResultPack.model_validate_json(line) for line in file]
 
     rows = [
         dict(
@@ -82,7 +87,7 @@ def main():
     del df["ruff_check_errors"]
     del df["pyroma_failures"]
     df["has_github"] = df["github"].notna()
-    # df["journal"] = df["journal"].map(lambda s: JOURNAL.get(s, s))
+    df["journal"] = df["journal"].map(lambda s: JOURNAL.get(s, s))
 
     def _fix_date(s):
         if pd.isna(s):

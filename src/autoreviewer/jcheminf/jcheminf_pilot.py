@@ -6,7 +6,6 @@ from pathlib import Path
 from typing import Callable, Iterable
 
 import click
-from pydantic import BaseModel
 from tqdm import tqdm
 
 from autoreviewer.api import Results, review
@@ -16,7 +15,7 @@ from autoreviewer.jcheminf.sources.biomed_central import (
 )
 from autoreviewer.jcheminf.sources.jmlr import get_jmlr_mloss_repos, get_jmlr_repos
 from autoreviewer.jcheminf.sources.joss import get_joss_repos
-from autoreviewer.jcheminf.sources.utils import SKIP_REPOSITORIES, ArticleRepositoryLink
+from autoreviewer.jcheminf.sources.utils import SKIP_REPOSITORIES, ArticleRepositoryLink, ResultPack
 from autoreviewer.utils import MODULE, GitHubRepository
 
 HERE = Path(__file__).parent.resolve()
@@ -27,14 +26,6 @@ REVIEW_MODULE = MODULE.module("reviews")
 
 def _get_review_path(github_repository: GitHubRepository) -> Path:
     return REVIEW_MODULE.join(github_repository.owner, name=f"{github_repository.repo}.json")
-
-
-class ResultPack(BaseModel):
-    """An object for journal, an article-repo link, and review results."""
-
-    journal: str
-    link: ArticleRepositoryLink
-    results: Results | None = None
 
 
 @click.command()
@@ -88,6 +79,10 @@ def main() -> None:
     with gzip.open(ANALYSIS_PATH, "wt") as file:
         for row in rows:
             file.write(row.model_dump_json(exclude={"results.ruff_check_errors"}) + "\n")
+
+    from .summarize import summarize
+
+    summarize(rows)
 
 
 if __name__ == "__main__":

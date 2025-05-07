@@ -83,6 +83,7 @@ def _extract_repositories_from_pdf(url: str) -> list[str]:
 
 
 def get_jmlr_pdfs() -> list[ArticlePDFLink]:
+    """Get article-pdf annotations."""
     links: list[ArticlePDFLink] = []
     # start at 7 when html pages evened out
     for volume in trange(7, 26):
