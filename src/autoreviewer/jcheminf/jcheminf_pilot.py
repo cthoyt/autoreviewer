@@ -1,11 +1,11 @@
 """A script for downloading and analyzing articles from the Journal of Cheminformatics."""
 
 import functools
+import gzip
 from pathlib import Path
 from typing import Callable, Iterable
 
 import click
-import pandas as pd
 from pydantic import BaseModel
 from tqdm import tqdm
 
@@ -20,7 +20,7 @@ from autoreviewer.jcheminf.sources.utils import SKIP_REPOSITORIES, ArticleReposi
 from autoreviewer.utils import MODULE, GitHubRepository
 
 HERE = Path(__file__).parent.resolve()
-ANALYSIS_PATH = HERE.joinpath("analysis.tsv")
+ANALYSIS_PATH = HERE.joinpath("analysis.jsonl.gz")
 
 REVIEW_MODULE = MODULE.module("reviews")
 
@@ -85,10 +85,9 @@ def main() -> None:
             )
             rows.append(row)
 
-    df_full = pd.DataFrame(rows)
-    del df_full["ruff_check_errors"]
-    click.echo(f"Writing to {ANALYSIS_PATH}")
-    df_full.to_csv(ANALYSIS_PATH, sep="\t", index=False)
+    with gzip.open(ANALYSIS_PATH, "wt") as file:
+        for row in rows:
+            file.write(row.model_dump_json(exclude={"results.ruff_check_errors"}) + "\n")
 
 
 if __name__ == "__main__":

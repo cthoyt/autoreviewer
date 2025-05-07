@@ -2,7 +2,6 @@
 
 """Main code."""
 
-import dataclasses
 import datetime
 import logging
 import os

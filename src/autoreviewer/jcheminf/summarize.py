@@ -1,17 +1,23 @@
 """Generate summary charts."""
 
 import datetime
+import gzip
+from collections import ChainMap
 
 import click
 import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
-from matplotlib.ticker import FuncFormatter
+
+from autoreviewer.jcheminf.jcheminf_pilot import ANALYSIS_PATH, HERE, ResultPack
+
+SUMMARY_PATH = HERE.joinpath("summary.svg")
+ANALYSIS_TSV_PATH = HERE.joinpath("analysis.tsv")
 
 
 def _p_status(x):
     if pd.isna(x):
-        return "No Repo"
+        return None
     elif x <= 0:
         return False
     else:
@@ -34,6 +40,8 @@ def _percentage(df, column):
 
 
 def _percentage_axis(ax):
+    from matplotlib.ticker import FuncFormatter
+
     formatter = FuncFormatter(lambda y, _: "{:.1%}".format(y))
     ax.yaxis.set_major_formatter(formatter)
 
@@ -55,23 +63,50 @@ def main():
     axes = axes.ravel()
 
     today = datetime.date.today()
-    df = pd.read_csv("analysis.tsv", sep="\t")
-    df["has_github"] = df["repo"].notna()
 
-    df["journal"] = df["journal"].map(JOURNAL)
+    with gzip.open(ANALYSIS_PATH, "rt") as file:
+        models = [ResultPack.model_validate_json(line) for line in file]
+
+    rows = [
+        dict(
+            ChainMap(
+                model.link.model_dump(),
+                (model.results.model_dump() if model.results else {}),
+                {"journal": model.journal},
+            )
+        )
+        for model in models
+    ]
+
+    df = pd.DataFrame(rows)
+    del df["ruff_check_errors"]
+    del df["pyroma_failures"]
+    df["has_github"] = df["github"].notna()
+    # df["journal"] = df["journal"].map(lambda s: JOURNAL.get(s, s))
 
     def _fix_date(s):
         if pd.isna(s):
             return s
-        if len(s) == 4:
-            return s + "-01-01"
-        return s
 
-    df["date"] = pd.to_datetime(df["date"].map(_fix_date))
+        if isinstance(s, datetime.date):
+            return s.year
+
+        if isinstance(s, str):
+            return s[:5]
+
+        raise TypeError
+
     df = df[df["date"].notna()]
-    df["year"] = df["date"].dt.year
+    df["year"] = df["date"].map(_fix_date)
+    # df["year"] = df["date"].dt.year
     # 2017 was the first year, where a repository was detected
     df = df[(2017 < df["year"]) & (df["year"] < today.year)]  # don't make ragged chart
+
+    df["license_status"] = df["license_name"].map(_license_status)
+    df["has_known_license"] = df["license_status"] == "Present"
+    df["package_status"] = df["pyroma_score"].map(_p_status)
+
+    df.to_csv(ANALYSIS_TSV_PATH, sep="\t", index=False)
 
     g1 = sns.lineplot(
         x="year",
@@ -99,12 +134,11 @@ def main():
     axes[1].set_title("Has Issue Tracker")
     _percentage_axis(axes[1])
 
-    df["package_status"] = df["pyroma_score"].map(_p_status)
     g3 = sns.lineplot(
         x="year",
         y="package_status",
         hue="journal",
-        data=_percentage(df[df["has_github"]], "package_status"),
+        data=_percentage(df[df["has_github"] & df["package_status"].notna()], "package_status"),
         ax=axes[2],
     )
     g3.legend_.remove()
@@ -152,8 +186,6 @@ def main():
     axes[5].set_title("Has Installation Documentation")
     _percentage_axis(axes[5])
 
-    df["license_status"] = df["license"].map(_license_status)
-    df["has_known_license"] = df["license_status"] == "Present"
     g7 = sns.lineplot(
         y="has_known_license",
         x="year",
@@ -174,7 +206,7 @@ def main():
 
     plt.suptitle("Cross-Venue Comparison", fontsize=16)
     plt.tight_layout()
-    plt.savefig("summary.png", dpi=300)
+    plt.savefig(SUMMARY_PATH, dpi=300)
 
 
 if __name__ == "__main__":

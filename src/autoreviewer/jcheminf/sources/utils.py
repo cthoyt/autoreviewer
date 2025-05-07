@@ -26,10 +26,14 @@ class ArticlePDFLink(BaseModel):
 
 
 def clean_repository(s: str) -> str:
+    """Clean a GitHub repository URL string."""
+    s = s.removeprefix("https://www.github.com/")
+    s = s.removeprefix("http://www.github.com/")
     s = s.removeprefix("https://github.com/")
     s = s.removeprefix("http://github.com/")
     s = s.removesuffix(".git")
     s = s.rstrip("/")
+    s = s.strip()
     return s
 
 
@@ -44,6 +48,7 @@ class ArticleRepositoryLink(BaseModel):
     github: str | None = Field(..., pattern="^[a-zA-Z0-9-_]+/[a-zA-Z0-9-_\\.]+$")
 
     def get_github_repository(self) -> GitHubRepository | None:
+        """Get a GitHub repository pair."""
         if self.github is None:
             return None
 
@@ -56,7 +61,7 @@ class ArticleRepositoryLink(BaseModel):
 
 def print_tabulate_links(links: list[ArticleRepositoryLink]):
     """Print article-repository links."""
-    print(
+    print(  # noqa:T201
         tabulate(
             [(link.date, link.reference.curie, link.github, link.title) for link in links],
             headers=["date", "ref", "github", "title"],

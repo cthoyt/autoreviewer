@@ -1,7 +1,7 @@
 """A source for the Journal of Open Source Software (JOSS)."""
 
 import json
-from typing import Any, Iterable
+from typing import Any
 
 import pystow
 from curies import Reference
@@ -29,12 +29,18 @@ def ensure_article_metadata_json(joss_article_id: int | str) -> ArticleMetadata:
 
 def _get_tuple(j: ArticleMetadata) -> ArticleRepositoryLink:
     name = j["title"]
-    if "github.com" in j["software_repository"]:
-        repo = clean_repository(j["software_repository"])
-    else:
+
+    repo_raw = j["software_repository"]
+    if "github.com" not in repo_raw:
         repo = None
+    elif "tree/master" in repo_raw:
+        repo, _, _ = repo_raw.partition("/tree/master")
+        repo = clean_repository(repo)
+    else:
+        repo = clean_repository(repo_raw)
+
     doi = j["doi"]
-    year = j["year"]  # TODO get full date
+    year = f"{j["year"]}-01-01"
     return ArticleRepositoryLink(
         reference=Reference(prefix="doi", identifier=doi), date=year, title=name, github=repo
     )
@@ -69,13 +75,10 @@ def get_joss_repos(*, refresh: bool = False) -> list[ArticleRepositoryLink]:
                 continue
             try:
                 yv = _get_tuple(metadata)
-            except Exception:
+            except Exception as e:
+                tqdm.write(f"failed on {path}: {e}")
                 continue
             if _not_python(metadata):
                 continue
             links.append(yv)
         return links
-
-
-if __name__ == "__main__":
-    list(get_joss_repos())

@@ -11,7 +11,6 @@ import click
 import dateutil.parser
 import ebooklib
 import requests
-from _operator import attrgetter
 from bs4 import BeautifulSoup
 from curies import Reference
 from ebooklib import epub
@@ -221,6 +220,7 @@ BIOMED_CENTRAL_JOURNALS = [JCHEMINF, BMC_BIOINFO]
 
 
 def get_biomed_central_links(journal_info: JournalInfo) -> list[ArticleRepositoryLink]:
+    """Get BioMed Central article-repository links."""
     # this cache might not be nexessary now that the _process function caches individual ones?
     ssss = HERE.joinpath(f"{journal_info.key}_doi_to_github.jsonl")
     if ssss.is_file():

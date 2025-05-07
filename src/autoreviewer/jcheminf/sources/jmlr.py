@@ -85,7 +85,7 @@ def _extract_repositories_from_pdf(url: str) -> list[str]:
 def get_jmlr_pdfs() -> list[ArticlePDFLink]:
     links: list[ArticlePDFLink] = []
     # start at 7 when html pages evened out
-    for volume in trange(7, 25):
+    for volume in trange(7, 26):
         url = f"{HOST}/papers/v{volume}/"
 
         with logging_redirect_tqdm():
@@ -165,6 +165,7 @@ def get_jmlr_mloss_repos() -> list[ArticleRepositoryLink]:
 
         repository_url: str = code_anchor.attrs["href"]
         repository_url = JMLR_MLOSS_FIXES.get(repository_url, repository_url).rstrip("/")
+        github: str | None
         if "github.com" in repository_url:
             github = clean_repository(repository_url)
             if "/" not in github:
