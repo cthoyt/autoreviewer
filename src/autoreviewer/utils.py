@@ -360,6 +360,13 @@ def format_ruff_check_errors(errors):
     return s + "\n"
 
 
+class GitHubRepository(NamedTuple):
+    """A tuple for a GitHub repository."""
+
+    owner: str
+    repo: str
+
+
 if __name__ == "__main__":
     get_repo_path("cthoyt", "pystow", "main")
     # r = ruff_check("/Users/cthoyt/.data/github/MiJia-ID/ggn-go")

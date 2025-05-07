@@ -40,6 +40,8 @@ def _percentage_axis(ax):
 
 JOURNAL = {
     "joss": "JOSS",
+    "jmlr": "JMLR",
+    "mloss": "JMLR-MLOSS",
     "jcheminf": "J. Chem. Inf.",
     "bmcbioinfo": "BMC Bioinformatics",
 }
