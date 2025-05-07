@@ -77,18 +77,6 @@ class Results(BaseModel):
     date: datetime.date = Field(default_factory=datetime.date.today)
     readme_type: str | None = None
 
-    def get_dict(self):
-        """Get this review as a dict."""
-        d = self.model_dump()
-        d["repo"] = self.repo_url
-        d["license"] = d.pop("license_name")
-        d["commit"] = d.pop("commit")[:8]
-        del d["owner"]
-        del d["name"]
-        del d["pyroma_failures"]
-        del d["date"]
-        return d
-
     @property
     def has_readme(self) -> bool:
         """Get if there is a README."""
@@ -128,7 +116,7 @@ class Results(BaseModel):
         """Render the template for GitHub issues."""
         return review_template.render(
             repo=self.repo,
-            repo_url=f"https://github.com/{self.repo}",
+            repo_url=self.repo_url,
             name=self.name,
             name_norm=self.name.replace("-", "_"),
             branch=self.branch,

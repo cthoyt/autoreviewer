@@ -1,7 +1,9 @@
+"""Utilities for literature sources."""
+
 import datetime
 
 from curies import Reference
-from pydantic import AnyHttpUrl, BaseModel, Field
+from pydantic import AnyHttpUrl, BaseModel, ConfigDict, Field
 from tabulate import tabulate
 
 from autoreviewer.utils import GitHubRepository
@@ -15,17 +17,12 @@ __all__ = [
 
 
 class ArticlePDFLink(BaseModel):
+    """An object for an article's metadata and PDF link."""
+
     reference: Reference
     date: datetime.date
     title: str | None
     pdf_url: AnyHttpUrl
-
-
-class ArticleEpubLink(BaseModel):
-    reference: Reference
-    date: datetime.date
-    title: str | None
-    pdf: AnyHttpUrl
 
 
 def clean_repository(s: str) -> str:
@@ -38,6 +35,8 @@ def clean_repository(s: str) -> str:
 
 class ArticleRepositoryLink(BaseModel):
     """A tuple containing all info about an article + repo."""
+
+    model_config = ConfigDict(frozen=True)
 
     reference: Reference
     date: datetime.date | None
@@ -56,6 +55,7 @@ class ArticleRepositoryLink(BaseModel):
 
 
 def print_tabulate_links(links: list[ArticleRepositoryLink]):
+    """Print article-repository links."""
     print(
         tabulate(
             [(link.date, link.reference.curie, link.github, link.title) for link in links],

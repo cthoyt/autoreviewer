@@ -1,3 +1,5 @@
+"""A source for the Journal of Open Source Software (JOSS)."""
+
 import json
 from typing import Any, Iterable
 

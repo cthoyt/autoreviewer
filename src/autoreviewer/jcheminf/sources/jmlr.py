@@ -1,3 +1,5 @@
+"""A source for the Journal of Machine Learning Research (JMLR)."""
+
 import re
 
 import pypdf.errors

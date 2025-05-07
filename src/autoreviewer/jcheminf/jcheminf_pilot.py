@@ -30,14 +30,15 @@ def _get_review_path(github_repository: GitHubRepository) -> Path:
 
 
 class ResultPack(BaseModel):
+    """An object for journal, an article-repo link, and review results."""
+
     journal: str
     link: ArticleRepositoryLink
     results: Results | None = None
 
 
 @click.command()
-@click.option("--reindex", is_flag=True, help="If true, reindex papers")
-def main(reindex: bool) -> None:
+def main() -> None:
     """Run the analysis."""
     rows: list[ResultPack] = []
 
@@ -56,25 +57,26 @@ def main(reindex: bool) -> None:
 
     for journal, func in link_getters:
         for link in tqdm(func(), desc=f"Reviewing {journal}", unit_scale=True):
-            github_repository = link.get_github_repository()
-            if not github_repository:
+            if not link.github:
+                results = None
+            elif not (github_repository := link.get_github_repository()):
                 tqdm.write(f"[{journal}] malformed repo: {link.github}")
-                continue
+                results = None
             elif github_repository in SKIP_REPOSITORIES:
                 tqdm.write(f"[{journal}] skipping blocklisted repo: {link.github}")
                 continue
-
-            cache_path = _get_review_path(github_repository)
-            if cache_path.is_file():
-                results = Results.model_validate_json(cache_path.read_text())
             else:
-                try:
-                    results = review(github_repository.owner, github_repository.repo)
-                except Exception:
-                    tqdm.write(f"[{journal}] failed to review repo: {link.github}")
-                    results = None
+                cache_path = _get_review_path(github_repository)
+                if cache_path.is_file():
+                    results = Results.model_validate_json(cache_path.read_text())
                 else:
-                    cache_path.write_text(results.model_dump_json(indent=2))
+                    try:
+                        results = review(github_repository.owner, github_repository.repo)
+                    except Exception:
+                        tqdm.write(f"[{journal}] failed to review repo: {link.github}")
+                        results = None
+                    else:
+                        cache_path.write_text(results.model_dump_json(indent=2))
 
             row = ResultPack(
                 journal=journal,

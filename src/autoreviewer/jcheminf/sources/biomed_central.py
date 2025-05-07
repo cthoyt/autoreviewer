@@ -1,3 +1,5 @@
+"""A source for journals from BioMed Central."""
+
 import datetime
 import functools
 import urllib.error
@@ -11,11 +13,13 @@ import ebooklib
 import requests
 from _operator import attrgetter
 from bs4 import BeautifulSoup
+from curies import Reference
 from ebooklib import epub
+from pydantic import ValidationError
 from tqdm import tqdm, trange
 from tqdm.contrib.concurrent import process_map
 from tqdm.contrib.logging import logging_redirect_tqdm
-from curies import Reference
+
 from autoreviewer.jcheminf.sources.utils import ArticleRepositoryLink
 from autoreviewer.utils import MODULE, strip
 
@@ -144,7 +148,8 @@ def _process(
     *,
     journal_info: JournalInfo,
 ) -> ArticleRepositoryLink:
-    cache_path = BMC_MODULE.join(name=f"{doi}.json")
+    part = doi.removeprefix("10.1186/")
+    cache_path = BMC_MODULE.join(name=f"{part}.json")
     if cache_path.is_file():
         return ArticleRepositoryLink.model_validate_json(cache_path.read_text())
 
@@ -153,13 +158,22 @@ def _process(
         try:
             book = ensure_epub(journal_info, doi)
         except (epub.EpubException, urllib.error.HTTPError):
-            rv= ArticleRepositoryLink(
-                reference=reference, date=None, title=None, github=None)
+            rv = ArticleRepositoryLink(reference=reference, date=None, title=None, github=None)
         else:
-            repos = [r for r in get_github(book) if r]  # TODO multiple checks per repo later
-            rv = ArticleRepositoryLink(
-                reference=reference, date=get_date(book), title=get_title(book), github=repos[0] if repos else None
-            )
+            repos = [
+                r for r in get_github(book) if r and "/" in r
+            ]  # TODO multiple checks per repo later
+            try:
+                rv = ArticleRepositoryLink(
+                    reference=reference,
+                    date=get_date(book),
+                    title=get_title(book),
+                    github=repos[0] if repos else None,
+                )
+            except ValidationError:
+                tqdm.write(f"[{journal_info.key}] failed to parse {doi}")
+                rv = ArticleRepositoryLink(reference=reference, date=None, title=None, github=None)
+
     cache_path.write_text(rv.model_dump_json())
     return rv
 
@@ -223,7 +237,7 @@ def get_biomed_central_links(journal_info: JournalInfo) -> list[ArticleRepositor
             chunksize=20,
         )
     # sort by date
-    rv: list[ArticleRepositoryLink] = sorted(set(rv1), key=attrgetter("date"), reverse=True)
+    rv: list[ArticleRepositoryLink] = list(set(rv1))
     with ssss.open("w") as file:
         for link in rv:
             file.write(link.model_dump_json() + "\n")
