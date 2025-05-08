@@ -8,7 +8,10 @@ from curies import Reference
 from tqdm import tqdm, trange
 from tqdm.contrib.logging import logging_redirect_tqdm
 
-from autoreviewer.jcheminf.sources.utils import ArticleRepositoryLink, clean_repository
+from autoreviewer.comparison.sources.utils import (
+    ArticleRepositoryLink,
+    clean_repository,
+)
 
 __all__ = [
     "get_joss_repos",
@@ -40,9 +43,12 @@ def _get_tuple(j: ArticleMetadata) -> ArticleRepositoryLink:
         repo = clean_repository(repo_raw)
 
     doi = j["doi"]
-    year = f"{j["year"]}-01-01"
+    year = f"{j['year']}-01-01"
     return ArticleRepositoryLink(
-        reference=Reference(prefix="doi", identifier=doi), date=year, title=name, github=repo
+        reference=Reference(prefix="doi", identifier=doi),
+        date=year,
+        title=name,
+        github=repo,
     )
 
 
@@ -67,7 +73,10 @@ def get_joss_repos(*, refresh: bool = False) -> list[ArticleRepositoryLink]:
     else:
         links = []
         for path in tqdm(
-            list(MODULE.base.glob("*.json")), desc="Getting JOSS", unit_scale=True, unit="article"
+            list(MODULE.base.glob("*.json")),
+            desc="Getting JOSS",
+            unit_scale=True,
+            unit="article",
         ):
             try:
                 metadata = json.loads(path.read_text())

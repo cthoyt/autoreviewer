@@ -12,7 +12,7 @@ from pypdf import PdfReader
 from tqdm import tqdm, trange
 from tqdm.contrib.logging import logging_redirect_tqdm
 
-from autoreviewer.jcheminf.sources.utils import (
+from autoreviewer.comparison.sources.utils import (
     ArticlePDFLink,
     ArticleRepositoryLink,
     clean_repository,

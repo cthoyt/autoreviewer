@@ -9,8 +9,8 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
 
-from autoreviewer.jcheminf.jcheminf_pilot import ANALYSIS_PATH, HERE
-from autoreviewer.jcheminf.sources.utils import ResultPack
+from autoreviewer.comparison.main import ANALYSIS_PATH, HERE
+from autoreviewer.comparison.sources.utils import ResultPack
 
 SUMMARY_PATH = HERE.joinpath("summary.svg")
 ANALYSIS_TSV_PATH = HERE.joinpath("analysis.tsv")

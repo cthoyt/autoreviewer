@@ -9,13 +9,17 @@ import click
 from tqdm import tqdm
 
 from autoreviewer.api import Results, review
-from autoreviewer.jcheminf.sources.biomed_central import (
+from autoreviewer.comparison.sources.biomed_central import (
     BIOMED_CENTRAL_JOURNALS,
     get_biomed_central_links,
 )
-from autoreviewer.jcheminf.sources.jmlr import get_jmlr_mloss_repos, get_jmlr_repos
-from autoreviewer.jcheminf.sources.joss import get_joss_repos
-from autoreviewer.jcheminf.sources.utils import SKIP_REPOSITORIES, ArticleRepositoryLink, ResultPack
+from autoreviewer.comparison.sources.jmlr import get_jmlr_mloss_repos, get_jmlr_repos
+from autoreviewer.comparison.sources.joss import get_joss_repos
+from autoreviewer.comparison.sources.utils import (
+    SKIP_REPOSITORIES,
+    ArticleRepositoryLink,
+    ResultPack,
+)
 from autoreviewer.utils import MODULE, GitHubRepository
 
 HERE = Path(__file__).parent.resolve()
@@ -30,7 +34,14 @@ def _get_review_path(github_repository: GitHubRepository) -> Path:
 
 @click.command()
 def main() -> None:
-    """Run the analysis."""
+    """Run the analysis.
+
+    Still to do:
+
+    1. How to identify the correct GitHub repository from a list of many?
+       This hugely overinflates statistics for JMLR
+    2. How to filter out non-Python repositories from the analysis?
+    """
     rows: list[ResultPack] = []
 
     link_getters: list[tuple[str, Callable[[], Iterable[ArticleRepositoryLink]]]] = [

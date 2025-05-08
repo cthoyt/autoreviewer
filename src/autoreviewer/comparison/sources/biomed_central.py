@@ -19,7 +19,7 @@ from tqdm import tqdm, trange
 from tqdm.contrib.concurrent import process_map
 from tqdm.contrib.logging import logging_redirect_tqdm
 
-from autoreviewer.jcheminf.sources.utils import ArticleRepositoryLink
+from autoreviewer.comparison.sources.utils import ArticleRepositoryLink
 from autoreviewer.utils import MODULE, strip
 
 HERE = Path(__file__).parent.resolve()
