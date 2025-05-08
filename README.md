@@ -70,9 +70,9 @@ Run on the command line with:
 $ autoreviewer https://github.com/rs-costa/sbml2hyb
 ```
 
-## J. Chem. Inf. Analysis
+## J. Chem. Inf. and Literature Analysis
 
-![](/autoreviewer/comparison/summary.svg)
+![](/src/autoreviewer/comparison/summary.svg)
 
 There's a submodule `autoreviewer.comparison` that has utilities for scraping the paper list
 from the Journal of Cheminformatics and several other journals, getting their ePub files,
