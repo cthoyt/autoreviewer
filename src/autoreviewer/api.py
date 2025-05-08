@@ -2,15 +2,14 @@
 
 """Main code."""
 
-import dataclasses
 import datetime
 import logging
 import os
-from dataclasses import dataclass, field
 from pathlib import Path
 
 import click
 from jinja2 import Environment, FileSystemLoader
+from pydantic import BaseModel, Field
 from pystow.utils import get_commit
 from tqdm import tqdm
 
@@ -41,12 +40,10 @@ environment = Environment(
 )
 review_template = environment.get_template("review.md")
 
-
 logging.getLogger("build").setLevel(logging.CRITICAL + 10)
 
 
-@dataclass
-class Results:
+class Results(BaseModel):
     """Results from analysis.
 
     1. Does the repository contain a LICENSE file in its root?
@@ -76,20 +73,8 @@ class Results:
     root_scripts: list[str]
     ruff_check_errors: list
 
-    date: datetime.date = field(default_factory=datetime.date.today)
+    date: datetime.date = Field(default_factory=datetime.date.today)
     readme_type: str | None = None
-
-    def get_dict(self):
-        """Get this review as a dict."""
-        d = dataclasses.asdict(self)
-        d["repo"] = self.repo_url
-        d["license"] = d.pop("license_name")
-        d["commit"] = d.pop("commit")[:8]
-        del d["owner"]
-        del d["name"]
-        del d["pyroma_failures"]
-        del d["date"]
-        return d
 
     @property
     def has_readme(self) -> bool:
@@ -130,7 +115,7 @@ class Results:
         """Render the template for GitHub issues."""
         return review_template.render(
             repo=self.repo,
-            repo_url=f"https://github.com/{self.repo}",
+            repo_url=self.repo_url,
             name=self.name,
             name_norm=self.name.replace("-", "_"),
             branch=self.branch,
