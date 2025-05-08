@@ -110,6 +110,11 @@ def summarize(models: list[ResultPack]) -> None:
     df["license_status"] = df["license_name"].map(_license_status)
     df["has_known_license"] = df["license_status"] == "Present"
     df["package_status"] = df["pyroma_score"].map(_p_status)
+    df["reference"] = df["reference"].map(lambda x: x["prefix"] + ":" + x["identifier"])
+    df["has_loose_root_scripts"] = df["root_scripts"].map(
+        lambda x: isinstance(x, list) and len(x) > 0
+    )
+    del df["root_scripts"]
 
     df.to_csv(ANALYSIS_TSV_PATH, sep="\t", index=False)
 

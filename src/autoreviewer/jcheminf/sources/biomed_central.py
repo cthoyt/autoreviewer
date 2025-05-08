@@ -221,12 +221,6 @@ BIOMED_CENTRAL_JOURNALS = [JCHEMINF, BMC_BIOINFO]
 
 def get_biomed_central_links(journal_info: JournalInfo) -> list[ArticleRepositoryLink]:
     """Get BioMed Central article-repository links."""
-    # this cache might not be nexessary now that the _process function caches individual ones?
-    ssss = HERE.joinpath(f"{journal_info.key}_doi_to_github.jsonl")
-    if ssss.is_file():
-        with ssss.open() as file:
-            return [ArticleRepositoryLink.model_validate_json(line) for line in file]
-
     with logging_redirect_tqdm():
         dois = scrape_biomed_central_dois(journal_info)
         rv1: Iterable[ArticleRepositoryLink] = process_map(
@@ -236,9 +230,5 @@ def get_biomed_central_links(journal_info: JournalInfo) -> list[ArticleRepositor
             unit="article",
             chunksize=20,
         )
-    # sort by date
     rv: list[ArticleRepositoryLink] = list(set(rv1))
-    with ssss.open("w") as file:
-        for link in rv:
-            file.write(link.model_dump_json() + "\n")
     return rv

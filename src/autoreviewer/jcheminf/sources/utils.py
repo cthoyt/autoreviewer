@@ -6,13 +6,14 @@ from curies import Reference
 from pydantic import AnyHttpUrl, BaseModel, ConfigDict, Field
 from tabulate import tabulate
 
-from autoreviewer import Results
+from autoreviewer.api import Results
 from autoreviewer.utils import GitHubRepository
 
 __all__ = [
     "ArticleRepositoryLink",
     "ArticlePDFLink",
     "SKIP_REPOSITORIES",
+    "ResultPack",
     "print_tabulate_links",
 ]
 
