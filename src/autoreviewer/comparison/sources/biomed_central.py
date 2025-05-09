@@ -212,7 +212,7 @@ BMC_BIOINFO = JournalInfo(
     key="bmcbioinfo",
     epub_fmt="https://bmcbioinformatics.biomedcentral.com/counter/epub/10.1186/{}.epub",
     article_list="https://bmcbioinformatics.biomedcentral.com/articles?searchType=journalSearch&sort=PubDate&page=",
-    n_pages=32,
+    n_pages=75,
     # n_pages=255,
 )
 

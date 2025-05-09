@@ -1,21 +1,17 @@
 """A source for the Journal of Machine Learning Research (JMLR)."""
 
-import re
-
-import pypdf.errors
-import pystow
 import requests
 from bs4 import BeautifulSoup, Tag
 from curies import Reference
-from pydantic import ValidationError
-from pypdf import PdfReader
 from tqdm import tqdm, trange
 from tqdm.contrib.logging import logging_redirect_tqdm
 
 from autoreviewer.comparison.sources.utils import (
+    MODULE,
     ArticlePDFLink,
     ArticleRepositoryLink,
     clean_repository,
+    get_repos_from_pdfs,
     print_tabulate_links,
 )
 
@@ -24,62 +20,12 @@ __all__ = [
     "get_jmlr_repos",
 ]
 
-MODULE = pystow.module("jmlr")
-
 HOST = "https://www.jmlr.org"
-
-GITHUB_URL_REF_RE = re.compile(
-    r"https?://(?:www\.)?github\.com/[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+,\s\d{4}\.?"
-)
-GITHUB_URL_RE = re.compile(r"https?://(?:www\.)?github\.com/[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+")
 
 
 def get_jmlr_repos() -> list[ArticleRepositoryLink]:
     """Get JMLR article-repository links."""
-    links = []
-    for p in tqdm(get_jmlr_pdfs(), desc="Getting JMLR", unit_scale=True, unit="article"):
-        for github in set(_extract_repositories_from_pdf(str(p.pdf_url))):
-            try:
-                link = ArticleRepositoryLink(
-                    reference=p.reference,
-                    date=p.date,
-                    title=p.title,
-                    github=github,
-                )
-            except ValidationError:
-                tqdm.write(
-                    f"failed to validate {dict(reference=p.reference, date=p.date, title=p.title, github=github)}"
-                )
-            else:
-                links.append(link)
-    return links
-
-
-def _extract_repositories_from_pdf(url: str) -> list[str]:
-    """Return the GitHub repo(s) from the PDF."""
-    with logging_redirect_tqdm():
-        path = MODULE.ensure("papers", url=url)
-        cache = path.with_suffix(".txt")
-        if cache.is_file():
-            return cache.read_text().splitlines(keepends=False)
-
-        try:
-            reader = PdfReader(path)
-        except pypdf.errors.EmptyFileError:
-            return []
-        repositories = set()
-        repositories_with_ref = set()
-        for page in reader.pages:
-            text = page.extract_text()
-            stand_alone = list(GITHUB_URL_RE.findall(text))
-            with_ref = list(GITHUB_URL_REF_RE.findall(text))
-            for repository in stand_alone:
-                repositories.add(repository.rstrip("."))
-            for repository_with_ref in with_ref:
-                repositories_with_ref.add(repository_with_ref.rsplit(",", 1)[0].rstrip("."))
-        rv = sorted(clean_repository(r) for r in repositories - repositories_with_ref)
-        cache.write_text("\n".join(rv))
-        return rv
+    return get_repos_from_pdfs("jmlr", get_jmlr_pdfs(), desc="Getting JMLR")
 
 
 def get_jmlr_pdfs() -> list[ArticlePDFLink]:

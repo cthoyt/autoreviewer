@@ -15,6 +15,7 @@ from autoreviewer.comparison.sources.biomed_central import (
 )
 from autoreviewer.comparison.sources.jmlr import get_jmlr_mloss_repos, get_jmlr_repos
 from autoreviewer.comparison.sources.joss import get_joss_repos
+from autoreviewer.comparison.sources.openrv import OPENREVIEW_VENUES, get_openreview_links
 from autoreviewer.comparison.sources.utils import (
     SKIP_REPOSITORIES,
     ArticleRepositoryLink,
@@ -54,6 +55,13 @@ def main() -> None:
             (
                 journal_info.key,
                 functools.partial(get_biomed_central_links, journal_info=journal_info),
+            )
+        )
+    for journal_key in OPENREVIEW_VENUES:
+        link_getters.append(
+            (
+                journal_key,
+                functools.partial(get_openreview_links, journal_key=journal_key),
             )
         )
 

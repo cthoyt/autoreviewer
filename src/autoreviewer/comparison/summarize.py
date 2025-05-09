@@ -10,7 +10,7 @@ import pandas as pd
 import seaborn as sns
 
 from autoreviewer.comparison.main import ANALYSIS_PATH, HERE
-from autoreviewer.comparison.sources.utils import ResultPack
+from autoreviewer.comparison.sources.utils import MAX_YEAR, MIN_YEAR, ResultPack
 
 SUMMARY_PATH = HERE.joinpath("summary.svg")
 ANALYSIS_TSV_PATH = HERE.joinpath("analysis.tsv")
@@ -49,6 +49,8 @@ def _percentage_axis(ax):
 
 JOURNAL = {
     "joss": "JOSS",
+    "iclr": "ICLR",
+    "neurips": "NeurIPS",
     "jmlr": "JMLR",
     "mloss": "JMLR-MLOSS",
     "jcheminf": "J. Chem. Inf.",
@@ -69,8 +71,6 @@ def summarize(models: list[ResultPack]) -> None:
     fig, axes = plt.subplots(2, 4, figsize=(14, 5))
 
     axes = axes.ravel()
-
-    today = datetime.date.today()
 
     rows = [
         dict(
@@ -103,9 +103,7 @@ def summarize(models: list[ResultPack]) -> None:
 
     df = df[df["date"].notna()]
     df["year"] = df["date"].map(_fix_date)
-    # df["year"] = df["date"].dt.year
-    # 2017 was the first year, where a repository was detected
-    df = df[(2017 < df["year"]) & (df["year"] < today.year)]  # don't make ragged chart
+    df = df[(MIN_YEAR <= df["year"]) & (df["year"] < MAX_YEAR)]  # don't make ragged chart
 
     df["license_status"] = df["license_name"].map(_license_status)
     df["has_known_license"] = df["license_status"] == "Present"
